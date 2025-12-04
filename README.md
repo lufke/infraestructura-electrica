@@ -23,19 +23,19 @@ La red de distribucion electrica se compone de:
 
 
 Relaciones
-Loteo
-Soporte -> Loteo
-Poste -> Soporte
-Camara -> Soporte
-Estructura -> Soporte
-Seccionamiento -> Soporte
-Subestacion -> Soporte
-Linea MT -> Soporte 
-Linea BT -> Soporte
-Empalme -> Soporte y ¿Subestacion?
-Tierra -> Soporte
-Tirante -> Soporte
-Luminaria -> Soporte y ¿Empalme?
+- Loteo
+- Soporte -> Loteo
+- Poste -> Soporte
+- Camara -> Soporte
+- Estructura -> Soporte
+- Seccionamiento -> Soporte
+- Subestacion -> Soporte
+- Linea MT -> Soporte 
+- Linea BT -> Soporte
+- Empalme -> Soporte y ¿Subestacion?
+- Tierra -> Soporte
+- Tirante -> Soporte
+- Luminaria -> Soporte y ¿Empalme?
 
 Se desea que al iniciar la aplicacion entre a una pantalla que incialmente será un boton para pasar a la pantalla de listado de loteos. Esto despues se cambiara a un login / register
 Al elegir un loteo, se avanza a una pantalla con un TabView (barra inferior con 2 tabs: mapa y lista):
