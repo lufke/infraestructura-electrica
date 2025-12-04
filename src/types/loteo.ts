@@ -1,8 +1,7 @@
 import { NivelTension } from "./propiedades";
 import { SyncData } from "./sync";
 
-export interface Loteo extends SyncData {
-    id: number
+export interface LoteoBase extends SyncData {
     nombre: string
     direccion?: string
     propietario?: string
@@ -17,4 +16,14 @@ export interface Loteo extends SyncData {
     latitud?: number
     longitud?: number
     notas?: string
+}
+
+export interface Loteo extends LoteoBase {
+    id: number
+}
+
+export type LoteoCreate = LoteoBase
+
+export interface LoteoUpdate extends Partial<LoteoBase> {
+    id: number
 }

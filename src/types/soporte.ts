@@ -1,8 +1,7 @@
 import { TipoSoporte } from "./propiedades"
 import { SyncData } from "./sync"
 
-export interface Soporte extends SyncData {
-    id: number
+export interface SoporteBase extends SyncData {
     tipo?: TipoSoporte
     latitud: number
     longitud: number
@@ -10,4 +9,14 @@ export interface Soporte extends SyncData {
     precision?: number
     notas?: string
     id_loteo: number
+}
+
+export interface Soporte extends SoporteBase {
+    id: number
+}
+
+export type SoporteCreate = SoporteBase
+
+export interface SoporteUpdate extends Partial<SoporteBase> {
+    id: number
 }

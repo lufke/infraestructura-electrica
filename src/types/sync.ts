@@ -1,5 +1,5 @@
 export interface SyncData {
-    sincronizado: number
+    synced: number
     id_supabase?: number
     created_at: string
     updated_at: string

@@ -1,39 +1,19 @@
-export interface NivelTension {
-    nivel: 'BT' | 'MT' | string
-}
+export type NivelTension = 'BT' | 'MT' | string
 
-export interface TipoCamara {
-    tipo: 'A' | 'B' | 'C' | string
-}
+export type TipoCamara = 'A' | 'B' | 'C' | string
 
-export interface Condicion {
-    condicion: 'BUENO' | 'REGULAR' | 'MALO' | string
-}
+export type Condicion = 'BUENO' | 'REGULAR' | 'MALO' | string
 
-export interface TipoLampara {
-    tipo: 'LED' | 'HM' | 'HPS' | string
-}
+export type TipoLampara = 'LED' | 'HM' | 'HPS' | string
 
-export interface MaterialPoste {
-    material: 'MADERA' | 'CONCRETO' | 'METAL' | string
-}
+export type MaterialPoste = 'MADERA' | 'CONCRETO' | 'METAL' | string
 
-export interface TipoSoporte {
-    tipo: 'POSTE' | 'CAMARA' | string
-}
+export type TipoSoporte = 'POSTE' | 'CAMARA' | string
 
-export interface TipoTierra {
-    tipo: 'TP' | 'TS' | string
-}
+export type TipoTierra = 'TP' | 'TS' | string
 
-export interface TipoTirante {
-    tipo: 'SIMPLE' | 'DOBLE' | string
-}
+export type TipoTirante = 'SIMPLE' | 'DOBLE' | string
 
-export interface FijacionTirante {
-    fijacion: 'PISO' | 'POSTE MOZO' | 'RIEL' | string
-}
+export type FijacionTirante = 'PISO' | 'POSTE MOZO' | 'RIEL' | string
 
-export interface MaterialConductor {
-    material: 'ALUMINIO' | 'COBRE' | string
-}
+export type MaterialConductor = 'ALUMINIO' | 'COBRE' | string

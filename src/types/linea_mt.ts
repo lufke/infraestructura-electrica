@@ -1,8 +1,7 @@
 import { Condicion } from "./propiedades";
 import { SyncData } from "./sync";
 
-export interface LineaMT extends SyncData {
-    id: number
+export interface LineaMTBase extends SyncData {
     tipo?: string
     fases?: number
     seccion?: number
@@ -11,4 +10,14 @@ export interface LineaMT extends SyncData {
     id_soporte_inicio: number
     id_soporte_final: number
     notas?: string
+}
+
+export interface LineaMT extends LineaMTBase {
+    id: number
+}
+
+export type LineaMTCreate = LineaMTBase
+
+export interface LineaMTUpdate extends Partial<LineaMTBase> {
+    id: number
 }
