@@ -1,50 +1,54 @@
-# Welcome to your Expo app 👋
+Aplicacion para gestionar la infraestructura electrica de loteos
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Se trata de una aplicacion para gestionar la infraestructura electrica de loteos
+En cada loteo se pueden gestionar los soportes, postes, camaras, estructuras, seccionamientos, subestaciones, lineas mt, lineas bt, empalmes, tierras, tirantes, medidores, etc.
 
-## Get started
+La aplicacion esta en desarrollo y se encuentra en etapa alpha.
 
-1. Install dependencies
+Un loteo es un terreno en el que hay una red de distribucion electrica
+La red de distribucion electrica se compone de:
 
-   ```bash
-   npm install
-   ```
+- Soporte: Punto geográfico con el cual se relacionan los componentes del sistema, está asociado al loteo
+- Poste: Elemento estructural que soporta los conductores, estructuras, seccionamientos, subestaciones, lineas mt, lineas bt, empalmes, tierras, tirantes, medidores, etc. 
+- Camara: Caja que contiene los conductores
+- Estructura: Elemento estructural que soporta los conductores, seccionamientos, subestaciones, lineas mt, lineas bt, empalmes, tierras, tirantes, medidores, etc. Va asociado al soporte donde está instalado
+- Seccionamiento: Elemento que divide la linea en secciones, va asociada al soporte
+- Subestacion: Elemento electrico que modifica el voltaje de media tension a baja tension, puede estar relacionado a 1, 2 o 4 soportes, pero por simplicidad, será asociado a un soporte.
+- Linea MT: Elemento que conduce la electricidad en media tension. Esta asociado a dos soportes, uno inicial y uno final.
+- Linea BT: Elemento que conduce la electricidad en baja tension. Esta asociado a dos soportes, uno inicial y uno final.
+- Empalme: Elemento que asocia un cliente en baja tension a la subestacion (si el loteo tiene subestaciones) y al soporte donde está conectado.
+- Tierra: Elemento de seguridad de la red, asociado a un soporte donde está instalado.
+- Tirante: Elemento fisico para sujetar los postes, asociado al soporte donde está instalado
+- Luminaria: Elemento que ilumina un area, asociado a un soporte donde está instalado y posiblemente a un empalme
 
-2. Start the app
 
-   ```bash
-   npx expo start
-   ```
+Relaciones
+Loteo
+Soporte -> Loteo
+Poste -> Soporte
+Camara -> Soporte
+Estructura -> Soporte
+Seccionamiento -> Soporte
+Subestacion -> Soporte
+Linea MT -> Soporte 
+Linea BT -> Soporte
+Empalme -> Soporte y ¿Subestacion?
+Tierra -> Soporte
+Tirante -> Soporte
+Luminaria -> Soporte y ¿Empalme?
 
-In the output, you'll find options to open the app in a
+Se desea que al iniciar la aplicacion entre a una pantalla que incialmente será un boton para pasar a la pantalla de listado de loteos. Esto despues se cambiara a un login / register
+Al elegir un loteo, se avanza a una pantalla con un TabView (barra inferior con 2 tabs: mapa y lista):
+-Tab Mapa: un mapa con el loteo seleccionado y los soportes del loteo y sus lineas. En la pantalla del mapa, habrá un boton para crear un nuevo soporte, cuyas coordenadas serán obtenidas por el GPS.
+Al crear el soporte, se entrará en una pantalla donde se deberán agregar los distintos elementos que puede tener un soporte, como postes, camaras, estructuras, seccionamientos, subestaciones, empalmes, tierras, tirantes, luminarias, etc.
+AL presionar un soporte en el mapa, nos debe dar la opcion de crear una linea eligiendo ese punto como soporte de inicio y elegir otro soporte para que sea soporte final del tramo y poder agragar las caracteristicas de la linea (material, largo, seccion, etc). Dependiendo si es posible hacerlo así, sino, ver otra forma de hacerlo.
+-Tab Lista: Listado de soportes del loteo seleccionado, donde se mostrara el poste o camara asociada a cada soporte.
+-Tab Subestaciones: Listado de subestaciones del loteo seleccionado.
+-Tab Seccionamientos: Listado de seccionamientos del loteo seleccionado.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Se puede crear un filtro para que el mapa solo muestre lineas BT, lineas MT, luminarias, etc. 
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+La informacion se guardara en una base de datos local (SQLite) y posteriormente se subirá a supabase (para lo cual se necesita implementar un sistema de registro de usuarios).
 
-## Get a fresh project
+Inicialmente se manejará la sincronizacion solo con un campo llamado sincronizado que será un booleano que indica si el registro se ha sincronizado con supabase o no. Posteriormente se verá una forma mas eficiente de sincronizar los datos.
 
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
