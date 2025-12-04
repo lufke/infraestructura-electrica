@@ -38,13 +38,14 @@ Relaciones
 - Luminaria -> Soporte y ¿Empalme?
 
 Se desea que al iniciar la aplicacion entre a una pantalla que incialmente será un boton para pasar a la pantalla de listado de loteos. Esto despues se cambiara a un login / register
+
 Al elegir un loteo, se avanza a una pantalla con un TabView (barra inferior con 2 tabs: mapa y lista):
--Tab Mapa: un mapa con el loteo seleccionado y los soportes del loteo y sus lineas. En la pantalla del mapa, habrá un boton para crear un nuevo soporte, cuyas coordenadas serán obtenidas por el GPS.
-Al crear el soporte, se entrará en una pantalla donde se deberán agregar los distintos elementos que puede tener un soporte, como postes, camaras, estructuras, seccionamientos, subestaciones, empalmes, tierras, tirantes, luminarias, etc.
-AL presionar un soporte en el mapa, nos debe dar la opcion de crear una linea eligiendo ese punto como soporte de inicio y elegir otro soporte para que sea soporte final del tramo y poder agragar las caracteristicas de la linea (material, largo, seccion, etc). Dependiendo si es posible hacerlo así, sino, ver otra forma de hacerlo.
--Tab Lista: Listado de soportes del loteo seleccionado, donde se mostrara el poste o camara asociada a cada soporte.
--Tab Subestaciones: Listado de subestaciones del loteo seleccionado.
--Tab Seccionamientos: Listado de seccionamientos del loteo seleccionado.
+   - Tab Mapa: un mapa con el loteo seleccionado y los soportes del loteo y sus lineas. En la pantalla del mapa, habrá un boton para crear un nuevo soporte, cuyas coordenadas serán obtenidas por el GPS.
+   - Al crear el soporte, se entrará en una pantalla donde se deberán agregar los distintos elementos que puede tener un soporte, como postes, camaras, estructuras, seccionamientos, subestaciones, empalmes, tierras, tirantes, luminarias, etc.
+   - AL presionar un soporte en el mapa, nos debe dar la opcion de crear una linea eligiendo ese punto como soporte de inicio y elegir otro soporte para que sea soporte final del tramo y poder agragar las caracteristicas de la linea (material, largo, seccion, etc). Dependiendo si es posible hacerlo así, sino, ver otra forma de hacerlo.
+   - Tab Lista: Listado de soportes del loteo seleccionado, donde se mostrara el poste o camara asociada a cada soporte.
+   - Tab Subestaciones: Listado de subestaciones del loteo seleccionado.
+   - Tab Seccionamientos: Listado de seccionamientos del loteo seleccionado.
 
 Se puede crear un filtro para que el mapa solo muestre lineas BT, lineas MT, luminarias, etc. 
 
