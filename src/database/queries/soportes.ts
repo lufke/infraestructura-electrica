@@ -21,3 +21,8 @@ export async function hardDeleteSoporte(db: SQLiteDatabase, id: number) {
 export async function getSoportes(db: SQLiteDatabase) {
     return await selectBuilder(db, "soportes");
 }
+
+export async function getSoportesByLoteoId(db: SQLiteDatabase, id_loteo: number) {
+    return await selectBuilder(db, "soportes", { id_loteo });
+}
+

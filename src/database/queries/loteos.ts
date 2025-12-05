@@ -21,3 +21,9 @@ export async function hardDeleteLoteo(db: SQLiteDatabase, id: number) {
 export async function getLoteos(db: SQLiteDatabase) {
     return await selectBuilder(db, "loteos");
 }
+
+export async function getLoteoById(db: SQLiteDatabase, id: number) {
+    const result = await selectBuilder(db, "loteos", { id });
+    return result[0] || null;
+}
+
