@@ -1,15 +1,41 @@
-import { Text, View } from "react-native";
+import ThemeToggle from "@/src/components/ui/ThemeToggle";
+import { Href, useRouter } from "expo-router";
+import { View } from "react-native";
+import { Button, Text } from "react-native-paper";
 
 export default function Index() {
+  const router = useRouter();
+
   return (
     <View
       style={{
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
+        padding: 20,
       }}
     >
-      <Text>Edit app/index.tsx to edit this screen.</Text>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <Text variant="headlineMedium">Inicio</Text>
+        <ThemeToggle />
+      </View>
+
+      <Button
+        mode="contained"
+        icon="home"
+        onPress={() => router.push("/loteos" as Href)}
+        style={{ marginBottom: 10 }}
+      >
+        IR A LOTEOS
+      </Button>
+
+      <Button
+        mode="contained"
+        icon="plus"
+        onPress={() => router.push("/loteos/new" as Href)}
+        style={{ marginBottom: 20 }}
+      >
+        AGREGAR LOTEO
+      </Button>
+
     </View>
   );
 }

@@ -1,0 +1,11 @@
+import { Tabs } from "expo-router";
+
+export default function Layout() {
+    return (
+        <Tabs>
+            <Tabs.Screen name="index" />
+            <Tabs.Screen name="mapa" />
+            <Tabs.Screen name="soportes" />
+        </Tabs>
+    )
+}

@@ -1,3 +1,4 @@
+import { NavigationProvider } from "@/src/contexts/NavigationContext";
 import { ThemeProvider, useThemeContext } from "@/src/contexts/ThemeContext";
 import { sqlInit } from "@/src/database/sqlInit";
 import { darkTheme, lightTheme } from "@/src/themes/theme";
@@ -14,6 +15,7 @@ function ThemedApp() {
     <PaperProvider theme={theme}>
       <Stack
         screenOptions={{
+          title: "Loteos",
           headerStyle: {
             backgroundColor: theme.colors.primary,
           },
@@ -34,11 +36,13 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider>
-        <SQLiteProvider databaseName="infraestructura.db" onInit={sqlInit}>
-          <ThemedApp />
-        </SQLiteProvider>
-      </ThemeProvider>
+      <NavigationProvider>
+        <ThemeProvider>
+          <SQLiteProvider databaseName="infraestructura.db" onInit={sqlInit}>
+            <ThemedApp />
+          </SQLiteProvider>
+        </ThemeProvider>
+      </NavigationProvider>
     </GestureHandlerRootView>
   );
 }
