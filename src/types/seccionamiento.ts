@@ -1,12 +1,16 @@
 import { Condicion, NivelTension } from "./propiedades"
 import { SyncData } from "./sync"
 
+export type TipoSeccionamiento = 'FUS' | 'REC' | 'CUC' | 'ALD' | 'CODO' | string
+
+export type PosicionSeccionamiento = 'ABIERTO' | 'CERRADO' | string
+
 export interface SeccionamientoBase extends SyncData {
-    tipo?: string
+    tipo?: TipoSeccionamiento
     nivel_tension?: NivelTension
     fases?: number
     corriente?: number
-    posicion?: 'ABIERTO' | 'CERRADO' | string
+    posicion?: PosicionSeccionamiento
     condicion?: Condicion
     letrero?: string
     notas?: string

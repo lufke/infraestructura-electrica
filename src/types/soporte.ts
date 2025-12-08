@@ -1,5 +1,6 @@
-import { TipoSoporte } from "./propiedades"
 import { SyncData } from "./sync"
+
+export type TipoSoporte = 'POSTE' | 'CAMARA' | string
 
 export interface SoporteBase extends SyncData {
     tipo?: TipoSoporte

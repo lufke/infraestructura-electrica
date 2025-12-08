@@ -1,10 +1,13 @@
-import { Condicion, MaterialPoste } from "./propiedades"
+import { Condicion, NivelTension } from "./propiedades"
 import { SyncData } from "./sync"
 
+export type MaterialPoste = 'MADERA' | 'CONCRETO' | 'METAL' | string
+
 export interface PosteBase extends SyncData {
-    altura?: number
-    material?: MaterialPoste
     placa?: string
+    material?: MaterialPoste
+    altura_nivel_tension?: NivelTension
+    altura?: number
     condicion?: Condicion
     notas?: string
     id_soporte: number

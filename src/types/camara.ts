@@ -1,12 +1,14 @@
-import { Condicion, TipoCamara } from "./propiedades"
+import { Condicion } from "./propiedades"
 import { SyncData } from "./sync"
+
+export type TipoCamara = 'A' | 'B' | 'C' | string
 
 export interface CamaraBase extends SyncData {
     tipo_camara: TipoCamara
     placa?: string
-    condicion: Condicion
+    condicion?: Condicion
     notas?: string
-    id_soporte: string
+    id_soporte: number
 }
 
 export interface Camara extends CamaraBase {

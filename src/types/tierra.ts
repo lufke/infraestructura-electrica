@@ -1,10 +1,12 @@
-import { Condicion, TipoTierra } from "./propiedades"
+import { Condicion } from "./propiedades"
 import { SyncData } from "./sync"
+
+export type TipoTierra = 'TP' | 'TS' | string
 
 export interface TierraBase extends SyncData {
     tipo?: TipoTierra
-    resistencia: number
-    condicion: Condicion
+    resistencia?: number
+    condicion?: Condicion
     notas?: string
     id_soporte: number
 }

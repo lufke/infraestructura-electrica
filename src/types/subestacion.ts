@@ -9,7 +9,7 @@ export interface SubestacionBase extends SyncData {
     fases?: number
     marca?: string
     serie?: string
-    condicion: Condicion
+    condicion?: Condicion
     letrero?: string
     notas?: string
     id_soporte: number

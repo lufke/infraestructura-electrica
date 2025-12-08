@@ -1,11 +1,16 @@
-import { Condicion, FijacionTirante, NivelTension } from "./propiedades"
+import { Condicion, NivelTension } from "./propiedades"
 import { SyncData } from "./sync"
+
+export type FijacionTirante = 'PISO' | 'POSTE MOZO' | 'RIEL' | string
+
+export type TipoTirante = 'SIMPLE' | 'DOBLE' | string
 
 export interface TiranteBase extends SyncData {
     nivel_tension?: NivelTension
     cantidad?: number
+    tipo?: TipoTirante
     fijacion?: FijacionTirante
-    condicion: Condicion
+    condicion?: Condicion
     notas?: string
     id_soporte: number
 }

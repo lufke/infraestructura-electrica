@@ -1,12 +1,15 @@
 import { Condicion, MaterialConductor, NivelTension } from "./propiedades"
 import { SyncData } from "./sync"
 
+export type TipoEstructuraBT = 'PASO' | 'REMATE' | 'DERIVACION' | 'LIMITE DE ZONA'
+export type TipoEstructuraMT = 'PORTANTE' | 'REMATE' | 'ANCLAJE' | 'ARRANQUE'
+
 export interface EstructuraBase extends SyncData {
     nivel_tension?: NivelTension
     fases?: number
     material_conductor?: MaterialConductor
-    descripcion?: string
-    condicion: Condicion
+    descripcion?: TipoEstructuraBT | TipoEstructuraMT | string
+    condicion?: Condicion
     notas?: string
     id_soporte: number
 }

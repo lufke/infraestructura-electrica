@@ -1,4 +1,4 @@
-import { Condicion } from "./propiedades";
+import { AislacionConductor, Condicion, MaterialConductor } from "./propiedades";
 import { SyncData } from "./sync";
 
 export interface LineaMTBase extends SyncData {
@@ -6,7 +6,9 @@ export interface LineaMTBase extends SyncData {
     fases?: number
     seccion?: number
     largo?: number
-    condicion: Condicion
+    condicion?: Condicion
+    material?: MaterialConductor
+    aislacion?: AislacionConductor
     id_soporte_inicio: number
     id_soporte_final: number
     notas?: string
