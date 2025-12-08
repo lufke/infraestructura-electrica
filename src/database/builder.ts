@@ -108,3 +108,29 @@ export async function selectBuilder(
 
     return db.getAllAsync(sql, normalizeParams(where));
 }
+
+/**
+ * SELECT con JOIN para obtener entidades por id_loteo a través de soportes
+ * Ejemplo: obtener postes de un loteo específico
+ */
+export async function selectWithJoinBuilder(
+    db: SQLiteDatabase,
+    table: string,
+    joinTable: string,
+    joinCondition: string,
+    where?: Record<string, any>
+) {
+    let sql = `SELECT ${table}.* FROM ${table} INNER JOIN ${joinTable} ON ${joinCondition}`;
+    const values: any[] = [];
+
+    if (where && Object.keys(where).length > 0) {
+        const conditions = Object.keys(where).map(key => {
+            values.push(where[key]);
+            return `${joinTable}.${key} = ?`;
+        });
+        sql += ` WHERE ${conditions.join(' AND ')}`;
+    }
+
+    return db.getAllAsync(sql, values);
+}
+
