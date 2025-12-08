@@ -21,3 +21,7 @@ export async function hardDeleteEmpalme(db: SQLiteDatabase, id: number) {
 export async function getEmpalmes(db: SQLiteDatabase) {
     return await selectBuilder(db, "empalmes");
 }
+
+export async function getEmpalmesBySoporteId(db: SQLiteDatabase, id_soporte: number) {
+    return await selectBuilder(db, "empalmes", { id_soporte });
+}

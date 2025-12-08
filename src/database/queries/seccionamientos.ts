@@ -1,6 +1,6 @@
 import { SeccionamientoCreate, SeccionamientoUpdate } from "@/src/types/seccionamiento";
 import { SQLiteDatabase } from "expo-sqlite";
-import { deleteBuilder, insertBuilder, selectBuilder, softDeleteBuilder, updateBuilder } from "../builder";
+import { deleteBuilder, insertBuilder, selectBuilder, selectWithJoinBuilder, softDeleteBuilder, updateBuilder } from "../builder";
 
 export async function addSeccionamiento(db: SQLiteDatabase, data: Partial<SeccionamientoCreate>) {
     return await insertBuilder(db, "seccionamientos", data);
@@ -20,4 +20,18 @@ export async function hardDeleteSeccionamiento(db: SQLiteDatabase, id: number) {
 
 export async function getSeccionamientos(db: SQLiteDatabase) {
     return await selectBuilder(db, "seccionamientos");
+}
+
+export async function getSeccionamientosByLoteoId(db: SQLiteDatabase, id_loteo: number) {
+    return await selectWithJoinBuilder(
+        db,
+        "seccionamientos",
+        "soportes",
+        "seccionamientos.id_soporte = soportes.id",
+        { id_loteo }
+    );
+}
+
+export async function getSeccionamientosBySoporteId(db:SQLiteDatabase, id_soporte:number) {
+    return await selectBuilder(db,"seccionamientos",{id_soporte})
 }
