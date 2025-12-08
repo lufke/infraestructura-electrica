@@ -1,14 +1,16 @@
-import { useNavigation } from "@/src/contexts/NavigationContext";
+import { useLoteo } from "@/src/contexts/LoteoContext";
 import { addSoporte } from "@/src/database/queries/soportes";
 import * as Location from "expo-location";
+import { useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import React, { useEffect, useRef, useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
-import { FAB, IconButton } from "react-native-paper";
+import { Button, Dialog, FAB, IconButton, Portal, RadioButton, Text } from "react-native-paper";
 
 export default function Mapa() {
-    const { currentLoteoId } = useNavigation();
+    const { currentLoteoId } = useLoteo();
+    const router = useRouter();
     const db = useSQLiteContext();
     const mapRef = useRef<MapView | null>(null);
 
@@ -20,6 +22,11 @@ export default function Mapa() {
         latitudeDelta: 0.05,
         longitudeDelta: 0.05,
     });
+
+    // Estado para el dialog
+    const [dialogVisible, setDialogVisible] = useState(false);
+    const [selectedType, setSelectedType] = useState<string>("POSTE");
+    const [pendingLocation, setPendingLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
     // Solicitar permisos y obtener ubicación
     useEffect(() => {
@@ -73,7 +80,7 @@ export default function Mapa() {
         }
     };
 
-    const addSoporteAtCurrentLocation = async () => {
+    const showAddSoporteDialog = async () => {
         let location = userLocation;
 
         if (!location) {
@@ -92,26 +99,48 @@ export default function Mapa() {
             return;
         }
 
+        // Guardar la ubicación y mostrar el dialog
+        setPendingLocation(location);
+        setSelectedType("POSTE");
+        setDialogVisible(true);
+    };
+
+    const handleConfirmAddSoporte = async () => {
+        if (!pendingLocation || !currentLoteoId) {
+            return;
+        }
+
+        setDialogVisible(false);
+
         try {
             const result = await addSoporte(db, {
-                tipo: 'POSTE',
-                latitud: location.latitude,
-                longitud: location.longitude,
+                tipo: selectedType,
+                latitud: pendingLocation.latitude,
+                longitud: pendingLocation.longitude,
                 id_loteo: currentLoteoId,
             });
 
             // Agregar marcador visual
             setMarkers([...markers, {
                 id: result.lastInsertRowId,
-                latitude: location.latitude,
-                longitude: location.longitude,
+                latitude: pendingLocation.latitude,
+                longitude: pendingLocation.longitude,
             }]);
 
-            Alert.alert("Soporte creado", `ID: ${result.lastInsertRowId}\nLat: ${location.latitude.toFixed(6)}, Lng: ${location.longitude.toFixed(6)}`);
+            setPendingLocation(null);
+
+            // Navegar a la pantalla de detalles del soporte
+            router.push(`/loteos/${currentLoteoId}/(tabs)/soportes/${result.lastInsertRowId}`);
         } catch (err) {
             console.error(err);
             Alert.alert("Error", "No se pudo crear el soporte");
+            setPendingLocation(null);
         }
+    };
+
+    const handleCancelDialog = () => {
+        setDialogVisible(false);
+        setPendingLocation(null);
     };
 
     return (
@@ -151,9 +180,29 @@ export default function Mapa() {
             <FAB
                 icon="plus"
                 label="Agregar Soporte"
-                onPress={addSoporteAtCurrentLocation}
+                onPress={showAddSoporteDialog}
                 style={styles.fab}
             />
+
+            {/* Dialog para seleccionar tipo de soporte */}
+            <Portal>
+                <Dialog visible={dialogVisible} onDismiss={handleCancelDialog}>
+                    <Dialog.Title>Agregar Soporte</Dialog.Title>
+                    <Dialog.Content>
+                        <Text variant="bodyMedium" style={{ marginBottom: 16 }}>
+                            ¿Qué tipo de soporte desea agregar?
+                        </Text>
+                        <RadioButton.Group onValueChange={setSelectedType} value={selectedType}>
+                            <RadioButton.Item label="Poste" value="POSTE" />
+                            <RadioButton.Item label="Cámara" value="CAMARA" />
+                        </RadioButton.Group>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={handleCancelDialog}>Cancelar</Button>
+                        <Button onPress={handleConfirmAddSoporte}>Agregar</Button>
+                    </Dialog.Actions>
+                </Dialog>
+            </Portal>
         </View>
     );
 }
