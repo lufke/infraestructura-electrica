@@ -1,4 +1,4 @@
-import { useNavigation } from "@/src/contexts/NavigationContext";
+import { useLoteo } from "@/src/contexts/LoteoContext";
 import { getLoteos, hardDeleteLoteo } from "@/src/database/queries/loteos";
 import { Loteo } from "@/src/types/loteo";
 import { Href, useFocusEffect, useRouter } from "expo-router";
@@ -12,7 +12,7 @@ export default function Index() {
     const db = useSQLiteContext()
     const [loteos, setLoteos] = useState<Loteo[]>([]);
 
-    const { setCurrentLoteoId } = useNavigation();
+    const { setCurrentLoteoId } = useLoteo();
 
     const loadLoteos = async () => {
         const result = await getLoteos(db);

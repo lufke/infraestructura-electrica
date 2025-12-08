@@ -22,20 +22,6 @@ const NuevoLoteo = () => {
     const params = useLocalSearchParams()
 
     const [loteo, setLoteo] = useState<Partial<Loteo>>({
-        nombre: '',
-        direccion: '',
-        propietario: '',
-        telefono: '',
-        correo: '',
-        comuna: '',
-        distribuidora: '',
-        n_cliente: '',
-        tension_mt: undefined,
-        tension_bt: undefined,
-        nivel_tension: undefined,
-        latitud: undefined,
-        longitud: undefined,
-        notas: '',
         created_by: params.userId as string || '',
         updated_by: params.userId as string || ''
     })
@@ -56,8 +42,18 @@ const NuevoLoteo = () => {
             return
         }
 
+        if (!loteo.nivel_tension?.trim()) {
+            Alert.alert('Error', 'El nivel de tensión es obligatorio')
+            return
+        }
+
         if (loteo.nivel_tension === 'MT' && !loteo.tension_mt) {
             Alert.alert('Error', 'Debe ingresar la tensión MT cuando el nivel es MT')
+            return
+        }
+
+        if (loteo.nivel_tension === 'MT' && !loteo.tension_bt) {
+            Alert.alert('Error', 'Debe ingresar la tensión BT cuando el nivel es MT')
             return
         }
 
@@ -227,6 +223,7 @@ const NuevoLoteo = () => {
             <Button mode="outlined" onPress={() => router.back()} style={styles.button} icon="arrow-left">
                 Cancelar
             </Button>
+            <Text variant="bodyMedium">{JSON.stringify(loteo)}</Text>
         </KeyboardAwareScrollView>
     )
 }
