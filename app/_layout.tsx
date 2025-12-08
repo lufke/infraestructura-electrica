@@ -1,4 +1,4 @@
-import { NavigationProvider } from "@/src/contexts/NavigationContext";
+import { LoteoProvider } from "@/src/contexts/LoteoContext";
 import { ThemeProvider, useThemeContext } from "@/src/contexts/ThemeContext";
 import { sqlInit } from "@/src/database/sqlInit";
 import { darkTheme, lightTheme } from "@/src/themes/theme";
@@ -36,13 +36,13 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <NavigationProvider>
+      <LoteoProvider>
         <ThemeProvider>
           <SQLiteProvider databaseName="infraestructura.db" onInit={sqlInit}>
             <ThemedApp />
           </SQLiteProvider>
         </ThemeProvider>
-      </NavigationProvider>
+      </LoteoProvider>
     </GestureHandlerRootView>
   );
 }

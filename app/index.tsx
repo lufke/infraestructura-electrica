@@ -1,10 +1,23 @@
 import ThemeToggle from "@/src/components/ui/ThemeToggle";
 import { Href, useRouter } from "expo-router";
-import { View } from "react-native";
+import * as SQLite from 'expo-sqlite';
+import { Alert, View } from "react-native";
 import { Button, Text } from "react-native-paper";
 
 export default function Index() {
   const router = useRouter();
+
+
+  const deleteDB = async () => {
+    try {
+      const db = await SQLite.openDatabaseAsync('infraestructura.db');
+      await db.closeAsync();
+      await SQLite.deleteDatabaseAsync('infraestructura.db');
+      Alert.alert("Éxito", "Base de datos eliminada. Reinicia la app.");
+    } catch (e) {
+      Alert.alert("Error", "No se pudo eliminar la base de datos: " + e);
+    }
+  }
 
   return (
     <View
@@ -34,6 +47,29 @@ export default function Index() {
         style={{ marginBottom: 20 }}
       >
         AGREGAR LOTEO
+      </Button>
+
+      <Button
+        mode="outlined"
+        icon="database-remove"
+        textColor="red"
+        onPress={async () => {
+          Alert.alert(
+            "Eliminar Base de Datos",
+            "¿Estás seguro? Se perderán todos los datos y tendrás que reiniciar la app.",
+            [
+              { text: "Cancelar", style: "cancel" },
+              {
+                text: "Eliminar",
+                style: "destructive",
+                onPress: deleteDB
+              }
+            ]
+          );
+        }}
+        style={{ marginTop: 'auto', borderColor: 'red' }}
+      >
+        ELIMINAR BASE DE DATOS
       </Button>
 
     </View>
