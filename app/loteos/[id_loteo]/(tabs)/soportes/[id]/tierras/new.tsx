@@ -61,10 +61,6 @@ export default function TierrasNew() {
             return
         }
 
-        if (!tierra.notas) {
-            Alert.alert('Error', 'Las notas son obligatorias')
-            return
-        }
         try {
             const resultado = await addTierra(db, tierra)
             Alert.alert('Éxito', `Tierra creada correctamente con ID: ${resultado.lastInsertRowId}`)

@@ -27,35 +27,54 @@ export default function SeccionamientosNew() {
     const handleTipoChange = (value: string) => {
         setSeccionamiento(prev => ({
             ...prev,
-            tipo: value as any
+            tipo: value as string
         }))
     }
 
     const handlePosicionChange = (value: string) => {
         setSeccionamiento(prev => ({
             ...prev,
-            posicion: value as any
+            posicion: value as string
         }))
     }
 
     const handleNivelTensionChange = (value: string) => {
         setSeccionamiento(prev => ({
             ...prev,
-            nivel_tension: value as any
+            nivel_tension: value as string,
+            tipo: undefined // Reset tipo when level changes
         }))
+    }
+
+    const getTipoOptions = () => {
+        if (seccionamiento.nivel_tension === 'BT') {
+            return [
+                { value: 'FUS', label: 'FUS' },
+                { value: 'AUT', label: 'AUT' },
+            ]
+        } else if (seccionamiento.nivel_tension === 'MT') {
+            return [
+                { value: 'FUS', label: 'FUS' },
+                { value: 'REC', label: 'REC' },
+                { value: 'CUC', label: 'CUC' },
+                { value: 'ALD', label: 'ALD' },
+                { value: 'CODO', label: 'CODO' },
+            ]
+        }
+        return []
     }
 
     const handleCondicionChange = (value: string) => {
         setSeccionamiento(prev => ({
             ...prev,
-            condicion: value as any
+            condicion: value as string
         }))
     }
 
     const handleLetreroChange = (value: string) => {
         setSeccionamiento(prev => ({
             ...prev,
-            letrero: value as any
+            letrero: value as string
         }))
     }
 
@@ -76,11 +95,19 @@ export default function SeccionamientosNew() {
     const handleNotasChange = (value: string) => {
         setSeccionamiento(prev => ({
             ...prev,
-            notas: value as any
+            notas: value as string
         }))
     }
 
     const crearSeccionamiento = async () => {
+        if (!seccionamiento.letrero) {
+            Alert.alert('Error', 'El letrero es obligatorio')
+            return
+        }
+        if (!seccionamiento.nivel_tension) {
+            Alert.alert('Error', 'El nivel de tension es obligatorio')
+            return
+        }
         if (!seccionamiento.tipo) {
             Alert.alert('Error', 'El tipo de seccionamiento es obligatorio')
             return
@@ -89,16 +116,12 @@ export default function SeccionamientosNew() {
             Alert.alert('Error', 'La posicion es obligatoria')
             return
         }
-        if (!seccionamiento.nivel_tension) {
-            Alert.alert('Error', 'El nivel de tension es obligatorio')
+        if (!seccionamiento.fases) {
+            Alert.alert('Error', 'Las fases son obligatorias')
             return
         }
         if (!seccionamiento.condicion) {
             Alert.alert('Error', 'La condicion es obligatoria')
-            return
-        }
-        if (!seccionamiento.fases) {
-            Alert.alert('Error', 'Las fases son obligatorias')
             return
         }
 
@@ -121,18 +144,32 @@ export default function SeccionamientosNew() {
             keyboardShouldPersistTaps="handled"
         >
             <Text variant="headlineMedium" style={styles.title}>Nuevo Seccionamiento</Text>
+            <Text>{JSON.stringify(seccionamiento)}</Text>
+            <TextInput
+                label="Letrero"
+                value={seccionamiento.letrero || ''}
+                onChangeText={handleLetreroChange}
+                style={styles.input}
+                mode="outlined"
+            />
             <SegmentedButtons
-                value={seccionamiento.tipo || ''}
-                onValueChange={handleTipoChange}
+                value={seccionamiento.nivel_tension || ''}
+                onValueChange={handleNivelTensionChange}
                 buttons={[
-                    { value: 'FUS', label: 'FUS' },
-                    { value: 'REC', label: 'REC' },
-                    { value: 'CUC', label: 'CUC' },
-                    { value: 'ALD', label: 'ALD' },
-                    { value: 'CODO', label: 'CODO' },
+                    { value: 'BT', label: 'BT' },
+                    { value: 'MT', label: 'MT' },
                 ]}
                 style={styles.segmentedButtons}
             />
+
+            {seccionamiento.nivel_tension && (
+                <SegmentedButtons
+                    value={seccionamiento.tipo || ''}
+                    onValueChange={handleTipoChange}
+                    buttons={getTipoOptions()}
+                    style={styles.segmentedButtons}
+                />
+            )}
             <SegmentedButtons
                 value={seccionamiento.posicion || ''}
                 onValueChange={handlePosicionChange}
@@ -142,15 +179,7 @@ export default function SeccionamientosNew() {
                 ]}
                 style={styles.segmentedButtons}
             />
-            <SegmentedButtons
-                value={seccionamiento.nivel_tension || ''}
-                onValueChange={handleNivelTensionChange}
-                buttons={[
-                    { value: 'BT', label: 'BT (Baja Tensión)' },
-                    { value: 'MT', label: 'MT (Media Tensión)' },
-                ]}
-                style={styles.segmentedButtons}
-            />
+
             <SegmentedButtons
                 value={seccionamiento.condicion || ''}
                 onValueChange={handleCondicionChange}
@@ -166,6 +195,7 @@ export default function SeccionamientosNew() {
                 onValueChange={handleFaseChange}
                 buttons={[
                     { value: '1', label: 'Monofásico' },
+                    { value: '2', label: 'Bifásico' },
                     { value: '3', label: 'Trifásico' },
                 ]}
                 style={styles.segmentedButtons}
@@ -176,14 +206,9 @@ export default function SeccionamientosNew() {
                 onChangeText={handleCorrienteChange}
                 style={styles.input}
                 mode="outlined"
+                keyboardType="numeric"
             />
-            <TextInput
-                label="Letrero"
-                value={seccionamiento.letrero || ''}
-                onChangeText={handleLetreroChange}
-                style={styles.input}
-                mode="outlined"
-            />
+
             <TextInput
                 label="Notas"
                 value={seccionamiento.notas || ''}

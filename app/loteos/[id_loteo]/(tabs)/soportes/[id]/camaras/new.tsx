@@ -1,4 +1,3 @@
-import { useLoteo } from '@/src/contexts/LoteoContext'
 import { addCamara } from '@/src/database/queries/camaras'
 import { Camara } from '@/src/types'
 import { router, useLocalSearchParams } from 'expo-router'
@@ -19,16 +18,30 @@ import {
 const NuevaCamara = () => {
     const db = useSQLiteContext()
     const params = useLocalSearchParams()
-    const { currentSoporteId } = useLoteo()
+    // const { currentSoporteId } = useLoteo()
 
     // Asegurar que tenemos un id_soporte válido
-    const soporteId = currentSoporteId || (params.id ? Number(params.id) : 0)
+    // const soporteId = currentSoporteId || (params.id ? Number(params.id) : 0)
+
+    console.log({ params })
 
     const [camara, setCamara] = useState<Partial<Camara>>({
-        id_soporte: soporteId,
+        id_soporte: params.id ? Number(params.id) : 0,
         created_by: params.userId as string || '',
         updated_by: params.userId as string || ''
     })
+
+    const [isSinPlaca, setIsSinPlaca] = useState(false)
+
+    const toggleSinPlaca = () => {
+        if (!isSinPlaca) {
+            setCamara(prev => ({ ...prev, placa: 'SIN PLACA' }))
+            setIsSinPlaca(true)
+        } else {
+            setCamara(prev => ({ ...prev, placa: '' }))
+            setIsSinPlaca(false)
+        }
+    }
 
     const handleTipoCamaraChange = (value: string) => {
         setCamara(prev => ({
@@ -46,13 +59,13 @@ const NuevaCamara = () => {
 
     const crearCamara = async () => {
 
-        if (!camara.tipo_camara?.trim()) {
-            Alert.alert('Error', 'El tipo de camara es obligatorio')
+        if (!camara.placa?.trim()) {
+            Alert.alert('Error', 'La placa es obligatoria')
             return
         }
 
-        if (!camara.placa?.trim()) {
-            Alert.alert('Error', 'La placa es obligatoria')
+        if (!camara.tipo_camara?.trim()) {
+            Alert.alert('Error', 'El tipo de camara es obligatorio')
             return
         }
 
@@ -64,7 +77,7 @@ const NuevaCamara = () => {
 
         try {
             const resultado = await addCamara(db, camara)
-            Alert.alert('Éxito', `Poste creado con id: ${resultado.lastInsertRowId}`)
+            Alert.alert('Éxito', `Camara creada con id: ${resultado.lastInsertRowId}`)
             router.back()
         } catch (error) {
             console.error(error)
@@ -91,6 +104,9 @@ const NuevaCamara = () => {
                 onChangeText={text => setCamara({ ...camara, placa: text })}
                 style={styles.input}
                 mode="outlined"
+                disabled={isSinPlaca}
+                right={<TextInput.Icon icon={isSinPlaca ? 'close-circle' : 'tag-off'} onPress={toggleSinPlaca} forceTextInputFocus={false} />}
+
             />
 
             <SegmentedButtons

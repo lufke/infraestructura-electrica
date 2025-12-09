@@ -13,12 +13,12 @@ type SoporteItem = (Poste | Camara) & { tipo: 'POSTE' | 'CAMARA' };
 
 
 export default function SoportesList() {
-    const { currentLoteoId } = useLoteo();
+    const { currentLoteoId, currentSoporteId, setCurrentSoporteId } = useLoteo();
     const [items, setItems] = useState<SoporteItem[]>([]);
     const db = useSQLiteContext();
     const [soportes, setSoportes] = useState<Soporte[]>([]);
 
-const router = useRouter()
+    const router = useRouter()
     const loadSoportesCamarasPostes = async () => {
         if (!currentLoteoId) return;
 
@@ -75,7 +75,8 @@ const router = useRouter()
             return (
                 <List.Item
                     title={poste.placa || "POSTE SIN PLACA"}
-                    description={`Material: ${poste.material || 'N/A'} - Altura: ${poste.altura_nivel_tension || 'N/A'} - ID Soporte: ${poste.id_soporte}`}
+                    description={`ID POSTE: ${poste.id} - ID Soporte: ${poste.id_soporte}`}
+                    // description={`Material: ${poste.material || 'N/A'} - Altura: ${poste.altura_nivel_tension || 'N/A'} - ID Soporte: ${poste.id_soporte}`}
                     left={props => (
                         <List.Icon
                             {...props}
@@ -87,7 +88,8 @@ const router = useRouter()
                     right={props => <List.Icon {...props} icon="chevron-right" />}
                     onPress={() => {
                         console.log('Poste seleccionado:', poste.id);
-                        router.navigate(`/loteos`)
+                        setCurrentSoporteId(poste.id_soporte);
+                        router.navigate(`/loteos/${currentLoteoId}/soportes/${poste.id_soporte}`)
                     }}
                 />
             );
@@ -96,17 +98,19 @@ const router = useRouter()
             return (
                 <List.Item
                     title={camara.placa || "CÁMARA SIN PLACA"}
-                    description={`Tipo: ${camara.tipo_camara || 'N/A'} - Condición: ${camara.condicion || 'N/A'} - ID: ${camara.id}`}
+                    description={`ID CÁMARA: ${camara.id} - ID Soporte: ${camara.id_soporte}`}
                     left={props => (
                         <List.Icon
                             {...props}
-                            icon="cctv"
+                            icon="square-outline"
                             color={getSyncColor(camara.synced)}
                         />
                     )}
                     right={props => <List.Icon {...props} icon="chevron-right" />}
                     onPress={() => {
                         console.log('Cámara seleccionada:', camara.id);
+                        setCurrentSoporteId(camara.id_soporte);
+                        router.navigate(`/loteos/${currentLoteoId}/soportes/${camara.id_soporte}`)
                     }}
                 />
             );
@@ -116,16 +120,17 @@ const router = useRouter()
     return (
         <View style={styles.container}>
             {true
-                ? (<FlatList
-                    data={items}
-                    keyExtractor={(item) => `${item.tipo}-${item.id}`}
-                    renderItem={renderItem}
-                    ListEmptyComponent={
-                        <View style={styles.emptyContainer}>
-                            <Text>No hay postes ni cámaras registrados para este loteo.</Text>
-                        </View>
-                    }
-                />)
+                ? (
+                    <FlatList
+                        data={items}
+                        keyExtractor={(item) => `${item.tipo}-${item.id}`}
+                        renderItem={renderItem}
+                        ListEmptyComponent={
+                            <View style={styles.emptyContainer}>
+                                <Text>No hay postes ni cámaras registrados para este loteo.</Text>
+                            </View>
+                        }
+                    />)
                 : (
                     <FlatList
                         data={soportes}

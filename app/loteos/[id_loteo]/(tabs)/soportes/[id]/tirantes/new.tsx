@@ -26,7 +26,7 @@ export default function TirantesNew() {
     const handleNivelTensionChange = (value: string) => {
         setTirante(prev => ({
             ...prev,
-            altura_nivel_tension: value as any
+            nivel_tension: value as any
         }))
     }
 
@@ -158,6 +158,8 @@ export default function TirantesNew() {
                 onChangeText={handleCantidadChange}
                 style={styles.input}
                 mode="outlined"
+                keyboardType="numeric"
+                keyboardAppearance="dark"
             />
 
             <TextInput

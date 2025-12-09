@@ -1,4 +1,3 @@
-import { useLoteo } from '@/src/contexts/LoteoContext'
 import { addPoste } from '@/src/database/queries/postes'
 import { Poste } from '@/src/types'
 import { router, useLocalSearchParams } from 'expo-router'
@@ -19,18 +18,13 @@ import {
 const NuevoPoste = () => {
     const db = useSQLiteContext()
     const params = useLocalSearchParams()
-    const { currentLoteoId, currentSoporteId } = useLoteo()
+    // const { currentLoteoId, currentSoporteId } = useLoteo()
 
     // Asegurar que tenemos un id_soporte válido
-    const soporteId = currentSoporteId || (params.id ? Number(params.id) : 0)
+    // const soporteId = currentSoporteId || (params.id ? Number(params.id) : 0)
 
     const [poste, setPoste] = useState<Partial<Poste>>({
-        id_soporte: soporteId,
-        placa: '',
-        material: '',
-        altura_nivel_tension: '',
-        condicion: '',
-        notas: '',
+        id_soporte: params.id ? Number(params.id) : 0,
         created_by: params.userId as string || '',
         updated_by: params.userId as string || ''
     })

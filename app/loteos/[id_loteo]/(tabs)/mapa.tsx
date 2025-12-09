@@ -9,7 +9,7 @@ import MapView, { Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
 import { Button, Dialog, FAB, IconButton, Portal, RadioButton, Text } from "react-native-paper";
 
 export default function Mapa() {
-    const { currentLoteoId } = useLoteo();
+    const { currentLoteoId, setCurrentSoporteId } = useLoteo();
     const router = useRouter();
     const db = useSQLiteContext();
     const mapRef = useRef<MapView | null>(null);
@@ -120,6 +120,8 @@ export default function Mapa() {
                 id_loteo: currentLoteoId,
             });
 
+            console.log({ result });
+
             // Agregar marcador visual
             setMarkers([...markers, {
                 id: result.lastInsertRowId,
@@ -128,6 +130,7 @@ export default function Mapa() {
             }]);
 
             setPendingLocation(null);
+            // setCurrentSoporteId(null);
 
             // Navegar a la pantalla de detalles del soporte
             router.push(`/loteos/${currentLoteoId}/(tabs)/soportes/${result.lastInsertRowId}`);

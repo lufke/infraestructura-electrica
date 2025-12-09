@@ -6,18 +6,31 @@ import { Button, Text } from "react-native-paper";
 
 export default function Index() {
   const router = useRouter();
+  const db = SQLite.useSQLiteContext();
+
 
 
   const deleteDB = async () => {
     try {
-      const db = await SQLite.openDatabaseAsync('infraestructura.db');
+      const dbName = 'infraestructura.db';
+
+      // const db = await SQLite.openDatabaseAsync(dbName);
+
+      // Asegurar el cierre de write-ahead log
+      await db.execAsync("PRAGMA wal_checkpoint(TRUNCATE)");
+
       await db.closeAsync();
-      await SQLite.deleteDatabaseAsync('infraestructura.db');
+
+      // Ahora borrar
+      await SQLite.deleteDatabaseAsync(dbName);
+
       Alert.alert("Éxito", "Base de datos eliminada. Reinicia la app.");
-    } catch (e) {
-      Alert.alert("Error", "No se pudo eliminar la base de datos: " + e);
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "No se pudo eliminar la base de datos: " + error);
     }
-  }
+  };
+
 
   return (
     <View

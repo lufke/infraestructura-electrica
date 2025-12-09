@@ -30,15 +30,15 @@ type SoporteElements = {
 
 export default function SoporteDetails() {
     const { id } = useLocalSearchParams<{ id: string }>();
-    const { currentLoteoId, currentSoporteId } = useLoteo();
+    const { currentLoteoId } = useLoteo();
     const router = useRouter();
     const db = useSQLiteContext();
     const [soporte, setSoporte] = useState<Soporte | null>(null);
     const [fabOpen, setFabOpen] = useState(false);
     const [soporteElements, setSoporteElements] = useState<SoporteElements>({});
 
+    console.log({ id, currentLoteoId })
     console.log(soporteElements)
-
 
     useEffect(() => {
         loadSoporteDetails();
@@ -101,6 +101,9 @@ export default function SoporteDetails() {
             </Appbar.Header>
 
             <ScrollView style={styles.content}>
+                <Text variant="titleMedium" style={styles.cardTitle}>
+                    {JSON.stringify({ soporte })}
+                </Text>
                 {soporte && (
                     <Card style={styles.infoCard}>
                         <Card.Content>
@@ -127,21 +130,64 @@ export default function SoporteDetails() {
                 {renderElementCard('Postes', 'transmission-tower', soporteElements.postes, (item: Poste) => (
                     <>
                         <View style={styles.infoRow}>
+                            <Text style={styles.label}>Placa:</Text>
+                            <Text>{item.placa}</Text>
+                        </View>
+                        <View style={styles.infoRow}>
                             <Text style={styles.label}>Material:</Text>
                             <Text>{item.material}</Text>
                         </View>
                         <View style={styles.infoRow}>
                             <Text style={styles.label}>Altura:</Text>
-                            <Text>{item.altura}m</Text>
+                            <Text>{item.altura_nivel_tension}</Text>
                         </View>
-                        {item.condicion && (
-                            <View style={styles.infoRow}>
-                                <Text style={styles.label}>Condición:</Text>
-                                <Text>{item.condicion}</Text>
-                            </View>
-                        )}
                     </>
                 ))}
+
+                {renderElementCard('Cámaras', 'square-outline', soporteElements.camaras, (item: Camara) => (
+                    <>
+                        {item.placa && (
+                            <View style={styles.infoRow}>
+                                <Text style={styles.label}>Placa:</Text>
+                                <Text>{item.placa}</Text>
+                            </View>
+                        )}
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Tipo:</Text>
+                            <Text>{item.tipo_camara}</Text>
+                        </View>
+                    </>
+                ))}
+
+                {renderElementCard('Estructuras', 'cube-outline', soporteElements.estructuras, (item: Estructura) => (
+                    <>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Tipo:</Text>
+                            <Text>{item.descripcion}</Text>
+                        </View>
+                    </>
+                ))}
+
+
+
+                {renderElementCard('Subestaciones', 'flash', soporteElements.subestaciones, (item: Subestacion) => (
+                    <>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Nombre:</Text>
+                            <Text>{item.nombre}</Text>
+                        </View>
+                    </>
+                ))}
+
+                {renderElementCard('Seccionamientos', 'electric-switch', soporteElements.seccionamientos, (item: Seccionamiento) => (
+                    <>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Tipo:</Text>
+                            <Text>{item.tipo}</Text>
+                        </View>
+                    </>
+                ))}
+
 
                 {renderElementCard('Luminarias', 'lightbulb', soporteElements.luminarias, (item: Luminaria) => (
                     <>
@@ -162,21 +208,6 @@ export default function SoporteDetails() {
                     </>
                 ))}
 
-                {renderElementCard('Cámaras', 'cctv', soporteElements.camaras, (item: Camara) => (
-                    <>
-                        <View style={styles.infoRow}>
-                            <Text style={styles.label}>Tipo:</Text>
-                            <Text>{item.tipo_camara}</Text>
-                        </View>
-                        {item.placa && (
-                            <View style={styles.infoRow}>
-                                <Text style={styles.label}>Placa:</Text>
-                                <Text>{item.placa}</Text>
-                            </View>
-                        )}
-                    </>
-                ))}
-
                 {renderElementCard('Empalmes', 'connection', soporteElements.empalmes, (item: Empalme) => (
                     <>
                         <View style={styles.infoRow}>
@@ -189,33 +220,6 @@ export default function SoporteDetails() {
                                 <Text>{item.direccion}</Text>
                             </View>
                         )}
-                    </>
-                ))}
-
-                {renderElementCard('Estructuras', 'cube-outline', soporteElements.estructuras, (item: Estructura) => (
-                    <>
-                        <View style={styles.infoRow}>
-                            <Text style={styles.label}>Tipo:</Text>
-                            <Text>{item.descripcion}</Text>
-                        </View>
-                    </>
-                ))}
-
-                {renderElementCard('Seccionamientos', 'toggle-switch', soporteElements.seccionamientos, (item: Seccionamiento) => (
-                    <>
-                        <View style={styles.infoRow}>
-                            <Text style={styles.label}>Tipo:</Text>
-                            <Text>{item.tipo}</Text>
-                        </View>
-                    </>
-                ))}
-
-                {renderElementCard('Subestaciones', 'flash', soporteElements.subestaciones, (item: Subestacion) => (
-                    <>
-                        <View style={styles.infoRow}>
-                            <Text style={styles.label}>Nombre:</Text>
-                            <Text>{item.nombre}</Text>
-                        </View>
                     </>
                 ))}
 
@@ -263,18 +267,6 @@ export default function SoporteDetails() {
                         label: 'Cámaras',
                         onPress: () => navigateTo('camaras/new'),
                     },
-
-                    soporte?.tipo == 'POSTE' && {
-                        icon: 'anchor',
-                        label: 'Tirantes',
-                        onPress: () => navigateTo('tirantes/new'),
-                    },
-                    {
-                        // icon: 'meter-electric-outline',
-                        icon: 'home-lightning-bolt-outline',
-                        label: 'Empalmes',
-                        onPress: () => navigateTo('empalmes/new'),
-                    },
                     {
                         // icon: 'cube-outline',
                         // icon: 'lightning-bolt-outline',
@@ -282,11 +274,20 @@ export default function SoporteDetails() {
                         label: 'Estructuras',
                         onPress: () => navigateTo('estructuras/new'),
                     },
-
+                    {
+                        icon: 'electric-switch',
+                        label: 'Seccionamientos',
+                        onPress: () => navigateTo('seccionamientos/new'),
+                    },
+                    {
+                        icon: 'circle-multiple-outline',
+                        label: 'Subestaciones',
+                        onPress: () => navigateTo('subestaciones/new'),
+                    },
                     soporte?.tipo == 'POSTE' && {
-                        icon: 'lightbulb-on-outline',
-                        label: 'Luminarias',
-                        onPress: () => navigateTo('luminarias/new'),
+                        icon: 'anchor',
+                        label: 'Tirantes',
+                        onPress: () => navigateTo('tirantes/new'),
                     },
                     {
                         // icon: 'arrow-down-thin-circle-outline',
@@ -295,14 +296,17 @@ export default function SoporteDetails() {
                         onPress: () => navigateTo('tierras/new'),
                     },
                     {
-                        icon: 'circle-multiple-outline',
-                        label: 'Subestaciones',
-                        onPress: () => navigateTo('subestaciones/new'),
+                        // icon: 'meter-electric-outline',
+                        icon: 'home-lightning-bolt-outline',
+                        label: 'Empalmes',
+                        onPress: () => navigateTo('empalmes/new'),
                     },
-                    {
-                        icon: 'electric-switch',
-                        label: 'Seccionamientos',
-                        onPress: () => navigateTo('seccionamientos/new'),
+
+
+                    soporte?.tipo == 'POSTE' && {
+                        icon: 'lightbulb-on-outline',
+                        label: 'Luminarias',
+                        onPress: () => navigateTo('luminarias/new'),
                     },
                 ].filter((action): action is { icon: string; label: string; onPress: () => void } => Boolean(action))} // Filtrar valores false/undefined
                 onStateChange={({ open }) => setFabOpen(open)}
