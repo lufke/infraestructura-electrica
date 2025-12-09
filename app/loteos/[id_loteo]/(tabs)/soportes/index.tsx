@@ -1,13 +1,13 @@
 import { useLoteo } from "@/src/contexts/LoteoContext";
 import { getCamarasByLoteoId } from "@/src/database/queries/camaras";
 import { getPostesByLoteoId } from "@/src/database/queries/postes";
-import { getSoportesByLoteoId } from "@/src/database/queries/soportes";
+import { getSoportesByLoteoId, hardDeleteSoporte } from "@/src/database/queries/soportes";
 import { Camara, Poste, Soporte } from "@/src/types";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useCallback, useState } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
-import { List, Text } from "react-native-paper";
+import { Alert, FlatList, StyleSheet, View } from "react-native";
+import { IconButton, List, Text } from "react-native-paper";
 
 type SoporteItem = (Poste | Camara) & { tipo: 'POSTE' | 'CAMARA' };
 
@@ -23,7 +23,7 @@ export default function SoportesList() {
         if (!currentLoteoId) return;
 
         const soportesResult = await getSoportesByLoteoId(db, currentLoteoId);
-        console.log({ soportesResult });
+        // console.log({ soportesResult });
         // Fetch both postes and camaras
         const postesResult = await getPostesByLoteoId(db, currentLoteoId);
         const camarasResult = await getCamarasByLoteoId(db, currentLoteoId);
@@ -35,7 +35,7 @@ export default function SoportesList() {
         // Combine and sort by ID
         const combined = [...postes, ...camaras].sort((a, b) => a.id - b.id);
         setItems(combined);
-        console.log({ combined })
+        // console.log({ combined })
         setSoportes(soportesResult as Soporte[]);
     }
 
@@ -43,7 +43,7 @@ export default function SoportesList() {
         if (!currentLoteoId) return;
 
         const soportesResult = await getSoportesByLoteoId(db, currentLoteoId);
-        console.log({ soportesResult });
+        // console.log({ soportesResult });
         setSoportes(soportesResult as Soporte[]);
     }
 
@@ -58,13 +58,46 @@ export default function SoportesList() {
         return synced === 1 ? '#4CAF50' : '#F44336';
     };
 
+    const handleDelete = (id_soporte: number) => {
+        Alert.alert(
+            "Eliminar Soporte",
+            "¿Estás seguro de que deseas eliminar este soporte? Esta acción no se puede deshacer.",
+            [
+                { text: "Cancelar", style: "cancel" },
+                {
+                    text: "Eliminar",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            console.log("Eliminando soporte con ID:", id_soporte);
+                            await hardDeleteSoporte(db, id_soporte);
+                            loadSoportesCamarasPostes();
+                        } catch (error) {
+                            console.error("Error al eliminar soporte:", error);
+                            Alert.alert("Error", "No se pudo eliminar el soporte.");
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
     const soporteItem = ({ item }: { item: Soporte }) => {
         return (
             <List.Item
                 title={`${item.id} - ${item.tipo}`}
+                right={props => (
+                    <View style={styles.rightActions}>
+                        <IconButton
+                            icon="trash-can-outline"
+                            iconColor="red"
+                            onPress={() => handleDelete(item.id)}
+                        />
+                        <List.Icon {...props} icon="chevron-right" />
+                    </View>
+                )}
             />
         )
-
     }
 
     // renderSoporteItem
@@ -85,7 +118,16 @@ export default function SoportesList() {
 
                         />
                     )}
-                    right={props => <List.Icon {...props} icon="chevron-right" />}
+                    right={props => (
+                        <View style={styles.rightActions}>
+                            <IconButton
+                                icon="trash-can-outline"
+                                iconColor="red"
+                                onPress={() => handleDelete(poste.id_soporte)}
+                            />
+                            <List.Icon {...props} icon="chevron-right" />
+                        </View>
+                    )}
                     onPress={() => {
                         console.log('Poste seleccionado:', poste.id);
                         setCurrentSoporteId(poste.id_soporte);
@@ -106,7 +148,16 @@ export default function SoportesList() {
                             color={getSyncColor(camara.synced)}
                         />
                     )}
-                    right={props => <List.Icon {...props} icon="chevron-right" />}
+                    right={props => (
+                        <View style={styles.rightActions}>
+                            <IconButton
+                                icon="trash-can-outline"
+                                iconColor="red"
+                                onPress={() => handleDelete(camara.id_soporte)}
+                            />
+                            <List.Icon {...props} icon="chevron-right" />
+                        </View>
+                    )}
                     onPress={() => {
                         console.log('Cámara seleccionada:', camara.id);
                         setCurrentSoporteId(camara.id_soporte);
@@ -154,6 +205,10 @@ const styles = StyleSheet.create({
     },
     emptyContainer: {
         padding: 20,
+        alignItems: 'center',
+    },
+    rightActions: {
+        flexDirection: 'row',
         alignItems: 'center',
     },
 });

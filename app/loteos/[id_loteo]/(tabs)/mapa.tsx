@@ -1,7 +1,10 @@
+
 import { useLoteo } from "@/src/contexts/LoteoContext";
-import { addSoporte } from "@/src/database/queries/soportes";
+import { getCamarasByLoteoId } from "@/src/database/queries/camaras";
+import { getPostesByLoteoId } from "@/src/database/queries/postes";
+import { addSoporte, getSoportesByLoteoId } from "@/src/database/queries/soportes";
 import * as Location from "expo-location";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import React, { useEffect, useRef, useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
@@ -14,8 +17,8 @@ export default function Mapa() {
     const db = useSQLiteContext();
     const mapRef = useRef<MapView | null>(null);
 
-    const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-    const [markers, setMarkers] = useState<Array<{ id: number; latitude: number; longitude: number }>>([]);
+    const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number; altitude?: number | null; accuracy?: number | null } | null>(null);
+    const [markers, setMarkers] = useState<Array<{ id: number; latitude: number; longitude: number; tipo: string; placa?: string }>>([]);
     const [region, setRegion] = useState<Region>({
         latitude: -33.45,
         longitude: -70.6667,
@@ -26,7 +29,45 @@ export default function Mapa() {
     // Estado para el dialog
     const [dialogVisible, setDialogVisible] = useState(false);
     const [selectedType, setSelectedType] = useState<string>("POSTE");
-    const [pendingLocation, setPendingLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+    const [pendingLocation, setPendingLocation] = useState<{ latitude: number; longitude: number; altitude?: number | null; accuracy?: number | null } | null>(null);
+
+    // Cargar soportes
+    const loadSoportes = async () => {
+        if (!currentLoteoId) return;
+        try {
+            const [soportes, postes, camaras] = await Promise.all([
+                getSoportesByLoteoId(db, currentLoteoId),
+                getPostesByLoteoId(db, currentLoteoId),
+                getCamarasByLoteoId(db, currentLoteoId)
+            ]);
+
+            const mappedMarkers = (soportes as any[]).map(s => {
+                let placa = undefined;
+                if (s.tipo === 'POSTE') {
+                    placa = (postes as any[]).find(p => p.id_soporte === s.id)?.placa;
+                } else if (s.tipo === 'CAMARA') {
+                    placa = (camaras as any[]).find(c => c.id_soporte === s.id)?.placa;
+                }
+
+                return {
+                    id: s.id,
+                    latitude: s.latitud,
+                    longitude: s.longitud,
+                    tipo: s.tipo,
+                    placa
+                };
+            });
+            setMarkers(mappedMarkers);
+        } catch (error) {
+            console.error("Error cargando soportes:", error);
+        }
+    };
+
+    useFocusEffect(
+        React.useCallback(() => {
+            loadSoportes();
+        }, [currentLoteoId])
+    );
 
     // Solicitar permisos y obtener ubicación
     useEffect(() => {
@@ -38,8 +79,8 @@ export default function Mapa() {
                     return;
                 }
                 const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
-                const { latitude, longitude } = pos.coords;
-                setUserLocation({ latitude, longitude });
+                const { latitude, longitude, altitude, accuracy } = pos.coords;
+                setUserLocation({ latitude, longitude, altitude, accuracy });
 
                 const newRegion = {
                     latitude,
@@ -59,8 +100,8 @@ export default function Mapa() {
         if (!userLocation) {
             try {
                 const pos = await Location.getCurrentPositionAsync();
-                const { latitude, longitude } = pos.coords;
-                setUserLocation({ latitude, longitude });
+                const { latitude, longitude, accuracy, altitude } = pos.coords;
+                setUserLocation({ latitude, longitude, accuracy, altitude });
                 mapRef.current?.animateToRegion({
                     latitude,
                     longitude,
@@ -81,17 +122,21 @@ export default function Mapa() {
     };
 
     const showAddSoporteDialog = async () => {
-        let location = userLocation;
+        let location = null;
 
-        if (!location) {
-            try {
-                const pos = await Location.getCurrentPositionAsync();
-                location = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
-                setUserLocation(location);
-            } catch (err) {
-                Alert.alert("Error", "No se pudo obtener la ubicación");
-                return;
-            }
+        try {
+            // Siempre obtener la ubicación actual precisa
+            const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Highest });
+            location = {
+                latitude: pos.coords.latitude,
+                longitude: pos.coords.longitude,
+                altitude: pos.coords.altitude,
+                accuracy: pos.coords.accuracy
+            };
+            setUserLocation({ latitude: location.latitude, longitude: location.longitude });
+        } catch (err) {
+            Alert.alert("Error", "No se pudo obtener la ubicación");
+            return;
         }
 
         if (!currentLoteoId) {
@@ -118,6 +163,8 @@ export default function Mapa() {
                 latitud: pendingLocation.latitude,
                 longitud: pendingLocation.longitude,
                 id_loteo: currentLoteoId,
+                altitud: pendingLocation.altitude || undefined,
+                precision: pendingLocation.accuracy || undefined,
             });
 
             console.log({ result });
@@ -127,6 +174,7 @@ export default function Mapa() {
                 id: result.lastInsertRowId,
                 latitude: pendingLocation.latitude,
                 longitude: pendingLocation.longitude,
+                tipo: selectedType
             }]);
 
             setPendingLocation(null);
@@ -155,16 +203,27 @@ export default function Mapa() {
                 initialRegion={region}
                 showsUserLocation={true}
                 showsMyLocationButton={false}
+                showsScale
+                mapType="hybrid"
             >
                 {/* Marcadores de soportes */}
                 {markers.map((marker) => (
                     <Marker
                         key={marker.id}
                         coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
-                        title={`Soporte #${marker.id}`}
-                        description={`${marker.latitude.toFixed(6)}, ${marker.longitude.toFixed(6)}`}
+                        title={`${marker.tipo}`}
+                        description={marker.placa ? `${marker.placa}` : `Soporte #${marker.id}`}
                         pinColor="red"
-                    />
+                    >
+                        <View style={{
+                            width: 20,
+                            height: 20,
+                            borderRadius: 10,
+                            backgroundColor: marker.tipo === 'CAMARA' ? '#03A9F4' : 'red',
+                            borderColor: 'white',
+                            borderWidth: 2,
+                        }} />
+                    </Marker>
                 ))}
             </MapView>
 
@@ -226,7 +285,7 @@ const styles = StyleSheet.create({
     },
     fab: {
         position: "absolute",
-        bottom: 16,
+        bottom: 80,
         right: 16,
     },
 });
