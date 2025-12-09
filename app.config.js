@@ -1,86 +1,116 @@
-export default () => ({
-    expo: {
-        name: "infraestructura-electrica",
-        slug: "infraestructura-electrica",
-        version: "1.0.0",
-        orientation: "portrait",
-        icon: "./assets/images/icon.png",
-        scheme: "infraestructuraelectrica",
-        userInterfaceStyle: "automatic",
-        newArchEnabled: true,
+export default ({ config }) => {
+    const profile = process.env.EAS_BUILD_PROFILE || "preview";
 
-        ios: {
-            package: "cl.pipechela.infraestructura_electrica",
-            supportsTablet: true,
-            config: {
-                googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
-            },
+    const variants = {
+        dev: {
+            name: "Infraestructura Eléctrica (Dev)",
+            slug: "infraestructura-electrica-dev",
+            package: "cl.pipechela.infraestructura_electrica.dev",
         },
-
-        android: {
+        preview: {
+            name: "Infraestructura Eléctrica (Preview)",
+            slug: "infraestructura-electrica-preview",
+            package: "cl.pipechela.infraestructura_electrica.preview",
+        },
+        production: {
+            name: "Infraestructura Eléctrica",
+            slug: "infraestructura-electrica",
             package: "cl.pipechela.infraestructura_electrica",
-            adaptiveIcon: {
-                backgroundColor: "#E6F4FE",
-                foregroundImage: "./assets/images/android-icon-foreground.png",
-                backgroundImage: "./assets/images/android-icon-background.png",
-                monochromeImage: "./assets/images/android-icon-monochrome.png",
-            },
-            edgeToEdgeEnabled: true,
-            predictiveBackGestureEnabled: false,
-            config: {
-                googleMaps: {
-                    apiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+        },
+    };
+
+    const v = variants[profile] ?? variants.preview;
+
+    return {
+        expo: {
+            ...config.expo,
+
+            name: v.name,
+            slug: 'infraestructura-electrica',
+
+            icon: "./assets/images/icon.png",
+
+            scheme: "infraestructuraelectrica",
+            version: "1.0.0",
+            orientation: "portrait",
+            userInterfaceStyle: "automatic",
+            newArchEnabled: true,
+
+            /* ===== iOS ===== */
+            ios: {
+                bundleIdentifier: v.package,
+                supportsTablet: true,
+                config: {
+                    // ❗CORREGIDO
+                    googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
                 },
             },
-            permissions: [
-                "location",
-                "location-precise",
-                "location-always",
-                "location-while-in-use",
-            ],
-        },
 
-        web: {
-            output: "static",
-            favicon: "./assets/images/favicon.png",
-        },
-
-        plugins: [
-            "expo-router",
-            [
-                "expo-splash-screen",
-                {
-                    image: "./assets/images/splash-icon.png",
-                    imageWidth: 200,
-                    resizeMode: "contain",
-                    backgroundColor: "#000000",
-                    dark: {
-                        backgroundColor: "#ffffff",
+            /* ===== ANDROID ===== */
+            android: {
+                package: v.package,
+                adaptiveIcon: {
+                    backgroundColor: "#E6F4FE",
+                    foregroundImage: "./assets/images/android-icon-foreground.png",
+                    backgroundImage: "./assets/images/android-icon-background.png",
+                    monochromeImage: "./assets/images/android-icon-monochrome.png",
+                },
+                edgeToEdgeEnabled: true,
+                predictiveBackGestureEnabled: false,
+                config: {
+                    googleMaps: {
+                        // ❗CORREGIDO
+                        apiKey: process.env.GOOGLE_MAPS_API_KEY,
                     },
                 },
-            ],
-            "expo-sqlite",
-            [
-                "expo-location",
-                {
-                    isAndroidBackgroundLocationEnabled: true,
-                    isAndroidForegroundServiceEnabled: true,
-                },
-            ],
-        ],
-
-        experiments: {
-            typedRoutes: true,
-            reactCompiler: true,
-        },
-
-        extra: {
-            eas: {
-                projectId: "bb40b793-ed87-4779-a70b-a17018971cbc",
+                permissions: [
+                    "ACCESS_FINE_LOCATION",
+                    "ACCESS_COARSE_LOCATION"
+                ],
             },
 
-            // variables que quieres usar dentro de JS
-            apiUrl: process.env.EXPO_PUBLIC_API_URL,
+            web: {
+                output: "static",
+                favicon: "./assets/images/favicon.png",
+            },
+
+            plugins: [
+                "expo-router",
+                [
+                    "expo-splash-screen",
+                    {
+                        image: "./assets/images/splash-icon.png",
+                        imageWidth: 200,
+                        resizeMode: "contain",
+                        backgroundColor: "#000000",
+                        dark: {
+                            backgroundColor: "#ffffff",
+                        },
+                    },
+                ],
+                "expo-sqlite",
+                [
+                    "expo-location",
+                    {
+                        isAndroidBackgroundLocationEnabled: true,
+                        isAndroidForegroundServiceEnabled: true,
+                    },
+                ],
+            ],
+
+            extra: {
+                eas: {
+                    projectId: "bb40b793-ed87-4779-a70b-a17018971cbc",
+                },
+                apiUrl: process.env.EXPO_PUBLIC_API_URL,
+                buildProfile: profile,
+                googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
+            },
+
+            experiments: {
+                typedRoutes: true,
+                reactCompiler: true,
+            },
         },
-    },
-});
+    };
+};
