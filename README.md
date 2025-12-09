@@ -51,5 +51,5 @@ Se puede crear un filtro para que el mapa solo muestre lineas BT, lineas MT, lum
 
 La informacion se guardara en una base de datos local (SQLite) y posteriormente se subirá a supabase (para lo cual se necesita implementar un sistema de registro de usuarios).
 
-Inicialmente se manejará la sincronizacion solo con un campo llamado sincronizado que será un booleano que indica si el registro se ha sincronizado con supabase o no. Posteriormente se verá una forma mas eficiente de sincronizar los datos.
+Inicialmente se manejará la sincronizacion solo con un campo llamado synced que será un booleano que indica si el registro se ha sincronizado con supabase o no. Posteriormente se verá una forma mas eficiente de sincronizar los datos.
 
