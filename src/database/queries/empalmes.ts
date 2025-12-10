@@ -25,3 +25,8 @@ export async function getEmpalmes(db: SQLiteDatabase) {
 export async function getEmpalmesBySoporteId(db: SQLiteDatabase, id_soporte: number) {
     return await selectBuilder(db, "empalmes", { id_soporte });
 }
+
+export async function getEmpalmeById(db: SQLiteDatabase, id: number) {
+    const result = await selectBuilder(db, "empalmes", { id });
+    return result[0] || null;
+}

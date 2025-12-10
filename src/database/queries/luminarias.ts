@@ -35,3 +35,8 @@ export async function getLuminariasByLoteoId(db: SQLiteDatabase, id_loteo: numbe
 export async function getLuminariasBySoporteId(db: SQLiteDatabase, id_soporte: number) {
     return await selectBuilder(db, "luminarias", { id_soporte });
 }
+
+export async function getLuminariaById(db: SQLiteDatabase, id: number) {
+    const result = await selectBuilder(db, "luminarias", { id });
+    return result[0] || null;
+}

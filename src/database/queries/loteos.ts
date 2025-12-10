@@ -18,7 +18,10 @@ export async function hardDeleteLoteo(db: SQLiteDatabase, id: number) {
     return await deleteBuilder(db, "loteos", id);
 }
 
-export async function getLoteos(db: SQLiteDatabase) {
+export async function getLoteos(db: SQLiteDatabase, ownerId?: string) {
+    if (ownerId) {
+        return await selectBuilder(db, "loteos", { id_owner: ownerId });
+    }
     return await selectBuilder(db, "loteos");
 }
 

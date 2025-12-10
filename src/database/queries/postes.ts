@@ -36,3 +36,8 @@ export async function getPostesBySoporteId(db: SQLiteDatabase, id_soporte: numbe
     return await selectBuilder(db, "postes", { id_soporte });
 }
 
+export async function getPosteById(db: SQLiteDatabase, id: number) {
+    const result = await selectBuilder(db, "postes", { id });
+    return result[0] || null;
+}
+

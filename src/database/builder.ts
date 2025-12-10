@@ -44,7 +44,7 @@ export async function updateBuilder(
 
     const sql = `
     UPDATE ${table}
-    SET ${assignments}
+    SET ${assignments}, updated_at = CURRENT_TIMESTAMP
     WHERE ${idColumn} = ?
   `;
 

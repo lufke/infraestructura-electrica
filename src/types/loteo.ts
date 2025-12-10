@@ -5,6 +5,7 @@ export interface LoteoBase extends SyncData {
     nombre: string
     direccion?: string
     propietario?: string
+    id_owner?: string
     telefono?: string
     correo?: string
     comuna?: string

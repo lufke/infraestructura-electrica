@@ -35,3 +35,8 @@ export async function getTirantesByLoteoId(db: SQLiteDatabase, id_loteo: number)
 export async function getTirantesBySoporteId(db: SQLiteDatabase, id_soporte: number) {
     return await selectBuilder(db, "tirantes", { id_soporte });
 }
+
+export async function getTiranteById(db: SQLiteDatabase, id: number) {
+    const result = await selectBuilder(db, "tirantes", { id });
+    return result[0] || null;
+}

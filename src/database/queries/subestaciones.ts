@@ -36,3 +36,8 @@ export async function getSubestacionesBySoporteId(db: SQLiteDatabase, id_soporte
     return await selectBuilder(db, "subestaciones", { id_soporte });
 }
 
+export async function getSubestacionById(db: SQLiteDatabase, id: number) {
+    const result = await selectBuilder(db, "subestaciones", { id });
+    return result[0] || null;
+}
+

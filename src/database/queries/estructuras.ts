@@ -35,3 +35,8 @@ export async function getEstructurasByLoteoId(db: SQLiteDatabase, id_loteo: numb
 export async function getEstructurasBySoporteId(db: SQLiteDatabase, id_soporte: number) {
     return await selectBuilder(db, "estructuras", { id_soporte });
 }
+
+export async function getEstructuraById(db: SQLiteDatabase, id: number) {
+    const result = await selectBuilder(db, "estructuras", { id });
+    return result[0] || null;
+}

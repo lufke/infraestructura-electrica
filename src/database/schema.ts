@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS loteos (
     nombre TEXT NOT NULL,
     direccion TEXT,
     propietario TEXT,
+    id_owner TEXT,
     telefono TEXT,
     correo TEXT,
     comuna TEXT,

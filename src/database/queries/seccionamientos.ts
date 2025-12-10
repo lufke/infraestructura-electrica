@@ -32,6 +32,11 @@ export async function getSeccionamientosByLoteoId(db: SQLiteDatabase, id_loteo: 
     );
 }
 
-export async function getSeccionamientosBySoporteId(db:SQLiteDatabase, id_soporte:number) {
-    return await selectBuilder(db,"seccionamientos",{id_soporte})
+export async function getSeccionamientosBySoporteId(db: SQLiteDatabase, id_soporte: number) {
+    return await selectBuilder(db, "seccionamientos", { id_soporte })
+}
+
+export async function getSeccionamientoById(db: SQLiteDatabase, id: number) {
+    const result = await selectBuilder(db, "seccionamientos", { id });
+    return result[0] || null;
 }

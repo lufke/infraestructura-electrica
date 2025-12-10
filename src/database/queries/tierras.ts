@@ -35,3 +35,8 @@ export async function getTierrasByLoteoId(db: SQLiteDatabase, id_loteo: number) 
 export async function getTierrasBySoporteId(db: SQLiteDatabase, id_soporte: number) {
     return await selectBuilder(db, "tierras", { id_soporte });
 }
+
+export async function getTierraById(db: SQLiteDatabase, id: number) {
+    const result = await selectBuilder(db, "tierras", { id });
+    return result[0] || null;
+}

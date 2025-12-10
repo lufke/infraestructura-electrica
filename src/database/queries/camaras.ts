@@ -36,3 +36,8 @@ export async function getCamarasBySoporteId(db: SQLiteDatabase, id_soporte: numb
     return await selectBuilder(db, "camaras", { id_soporte });
 }
 
+export async function getCamaraById(db: SQLiteDatabase, id: number) {
+    const result = await selectBuilder(db, "camaras", { id });
+    return result[0] || null;
+}
+

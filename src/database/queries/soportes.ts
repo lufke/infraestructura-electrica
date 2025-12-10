@@ -26,3 +26,8 @@ export async function getSoportesByLoteoId(db: SQLiteDatabase, id_loteo: number)
     return await selectBuilder(db, "soportes", { id_loteo });
 }
 
+export async function getSoporteById(db: SQLiteDatabase, id: number) {
+    const result = await selectBuilder(db, "soportes", { id });
+    return result[0] || null;
+}
+
