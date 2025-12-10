@@ -1,10 +1,13 @@
 import ThemeToggle from "@/src/components/ui/ThemeToggle";
+import { useAuth } from "@/src/contexts/AuthContext";
+import { supabase } from "@/src/lib/supabase";
 import { Href, useRouter } from "expo-router";
 import * as SQLite from 'expo-sqlite';
 import { Alert, View } from "react-native";
 import { Button, Text } from "react-native-paper";
 
 export default function Index() {
+  const { session, loading } = useAuth();
   const router = useRouter();
   const db = SQLite.useSQLiteContext();
 
@@ -40,7 +43,14 @@ export default function Index() {
       }}
     >
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <Text variant="headlineMedium">Inicio</Text>
+        <View>
+          <Text variant="headlineMedium">Inicio</Text>
+          {session?.user && (
+            <Text variant="bodySmall" style={{ opacity: 0.6 }}>
+              {`${loading ? 'Cargando...' : session.user.id} - ${session.user.email}`}
+            </Text>
+          )}
+        </View>
         <ThemeToggle />
       </View>
 
@@ -60,6 +70,19 @@ export default function Index() {
         style={{ marginBottom: 20 }}
       >
         AGREGAR LOTEO
+      </Button>
+
+      <Button
+        mode="outlined"
+        icon="logout"
+        onPress={async () => {
+          const { error } = await supabase.auth.signOut();
+          //.auth.signOut();
+          if (error) Alert.alert("Error", error.message);
+        }}
+        style={{ marginBottom: 20 }}
+      >
+        CERRAR SESIÓN
       </Button>
 
       <Button
