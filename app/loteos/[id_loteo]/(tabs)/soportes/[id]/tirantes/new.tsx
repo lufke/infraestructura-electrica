@@ -1,3 +1,4 @@
+import { useAuth } from "@/src/contexts/AuthContext";
 import { useLoteo } from "@/src/contexts/LoteoContext";
 import { addTirante } from "@/src/database/queries/tirantes";
 import { Tirante } from "@/src/types";
@@ -13,14 +14,15 @@ export default function TirantesNew() {
     const params = useLocalSearchParams()
     const router = useRouter()
     const { currentSoporteId } = useLoteo()
+    const { session } = useAuth()
 
     // Asegurar que tenemos un id_soporte válido
     const soporteId = currentSoporteId || (params.id ? Number(params.id) : 0)
 
     const [tirante, setTirante] = useState<Partial<Tirante>>({
         id_soporte: soporteId,
-        created_by: params.userId as string || '',
-        updated_by: params.userId as string || ''
+        created_by: session?.user.id,
+        updated_by: session?.user.id,
     })
 
     const handleNivelTensionChange = (value: string) => {

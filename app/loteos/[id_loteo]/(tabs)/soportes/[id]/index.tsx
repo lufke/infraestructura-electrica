@@ -5,6 +5,7 @@ import { getEstructurasBySoporteId } from "@/src/database/queries/estructuras";
 import { getLuminariasBySoporteId } from "@/src/database/queries/luminarias";
 import { getPostesBySoporteId } from "@/src/database/queries/postes";
 import { getSeccionamientosBySoporteId } from "@/src/database/queries/seccionamientos";
+import { getSoporteById } from "@/src/database/queries/soportes";
 import { getSubestacionesBySoporteId } from "@/src/database/queries/subestaciones";
 import { getTierrasBySoporteId } from "@/src/database/queries/tierras";
 import { getTirantesBySoporteId } from "@/src/database/queries/tirantes";
@@ -54,11 +55,12 @@ export default function SoporteDetails() {
         if (!id) return;
 
         try {
-            const result = await db.getFirstAsync<Soporte>(
-                `SELECT * FROM soportes WHERE id = ?`,
-                [id]
-            );
-            setSoporte(result || null);
+            // const result = await db.getFirstAsync<Soporte>(
+            //     `SELECT * FROM soportes WHERE id = ?`,
+            //     [id]
+            // );
+            const result = await getSoporteById(db, Number(id)) as Soporte
+            setSoporte(result);
             await getSoporteElements(Number(id));
         } catch (err) {
             console.error("Error loading soporte:", err);
@@ -82,7 +84,7 @@ export default function SoporteDetails() {
             const tirantes = await getTirantesBySoporteId(db, id_soporte) as Tirante[]
             setSoporteElements({ camaras, empalmes, estructuras, luminarias, postes, seccionamientos, subestaciones, tierras, tirantes })
 
-            console.log({ soporteElements })
+            // console.log({ soporteElements })
 
             // crear las siguientes funciones en 
 
@@ -101,10 +103,7 @@ export default function SoporteDetails() {
             </Appbar.Header>
 
             <ScrollView style={styles.content}>
-                <Text variant="titleMedium" style={styles.cardTitle}>
-                    {JSON.stringify({ soporte })}
-                </Text>
-                {soporte && (
+                {/* {soporte && (
                     <Card style={styles.infoCard}>
                         <Card.Content>
                             <Text variant="titleMedium" style={styles.cardTitle}>
@@ -124,7 +123,7 @@ export default function SoporteDetails() {
                             </View>
                         </Card.Content>
                     </Card>
-                )}
+                )} */}
 
                 {/* Element Cards */}
                 {renderElementCard('Postes', 'transmission-tower', soporteElements.postes, (item: Poste) => (

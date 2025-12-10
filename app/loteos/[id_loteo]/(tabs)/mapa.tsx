@@ -1,4 +1,5 @@
 
+import { useAuth } from "@/src/contexts/AuthContext";
 import { useLoteo } from "@/src/contexts/LoteoContext";
 import { getCamarasByLoteoId } from "@/src/database/queries/camaras";
 import { getPostesByLoteoId } from "@/src/database/queries/postes";
@@ -13,6 +14,7 @@ import { Button, Dialog, FAB, IconButton, Portal, RadioButton, Text } from "reac
 
 export default function Mapa() {
     const { currentLoteoId, setCurrentSoporteId } = useLoteo();
+    const { session } = useAuth();
     const router = useRouter();
     const db = useSQLiteContext();
     const mapRef = useRef<MapView | null>(null);
@@ -165,6 +167,8 @@ export default function Mapa() {
                 id_loteo: currentLoteoId,
                 altitud: pendingLocation.altitude || undefined,
                 precision: pendingLocation.accuracy || undefined,
+                created_by: session?.user.id,
+                updated_by: session?.user.id,
             });
 
             console.log({ result });

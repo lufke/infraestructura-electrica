@@ -1,3 +1,4 @@
+import { useAuth } from "@/src/contexts/AuthContext";
 import { useLoteo } from "@/src/contexts/LoteoContext";
 import { getLoteos, hardDeleteLoteo } from "@/src/database/queries/loteos";
 import { Loteo } from "@/src/types/loteo";
@@ -11,11 +12,13 @@ export default function Index() {
     const router = useRouter();
     const db = useSQLiteContext()
     const [loteos, setLoteos] = useState<Loteo[]>([]);
+    const { session } = useAuth();
 
     const { setCurrentLoteoId } = useLoteo();
 
     const loadLoteos = async () => {
-        const result = await getLoteos(db);
+        if (!session?.user.id) return;
+        const result = await getLoteos(db, session.user.id);
         setLoteos(result as Loteo[]);
     }
 

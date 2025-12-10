@@ -1,4 +1,5 @@
 import NumericInput from '@/src/components/ui/NumericInput'
+import { useAuth } from '@/src/contexts/AuthContext'
 import { addLoteo } from '@/src/database/queries/loteos'
 import { Loteo } from '@/src/types/loteo'
 import { router, useLocalSearchParams } from 'expo-router'
@@ -20,10 +21,12 @@ import {
 const NuevoLoteo = () => {
     const db = useSQLiteContext()
     const params = useLocalSearchParams()
+    const { session } = useAuth()
 
     const [loteo, setLoteo] = useState<Partial<Loteo>>({
-        created_by: params.userId as string || '',
-        updated_by: params.userId as string || ''
+        created_by: session?.user.id,
+        updated_by: session?.user.id,
+        id_owner: session?.user.id
     })
 
     const handleNivelTensionChange = (value: string) => {

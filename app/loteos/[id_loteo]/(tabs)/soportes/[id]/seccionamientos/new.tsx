@@ -1,3 +1,4 @@
+import { useAuth } from "@/src/contexts/AuthContext";
 import { useLoteo } from "@/src/contexts/LoteoContext";
 import { addSeccionamiento } from "@/src/database/queries/seccionamientos";
 import { Seccionamiento } from "@/src/types";
@@ -14,14 +15,15 @@ export default function SeccionamientosNew() {
     const params = useLocalSearchParams()
     const router = useRouter()
     const { currentSoporteId } = useLoteo()
+    const { session } = useAuth()
 
     // Asegurar que tenemos un id_soporte válido
     const soporteId = currentSoporteId || (params.id ? Number(params.id) : 0)
 
     const [seccionamiento, setSeccionamiento] = useState<Partial<Seccionamiento>>({
         id_soporte: soporteId,
-        created_by: params.userId as string || '',
-        updated_by: params.userId as string || ''
+        created_by: session?.user.id,
+        updated_by: session?.user.id,
     })
 
     const handleTipoChange = (value: string) => {

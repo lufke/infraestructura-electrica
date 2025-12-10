@@ -1,3 +1,4 @@
+import { useAuth } from '@/src/contexts/AuthContext'
 import { addPoste } from '@/src/database/queries/postes'
 import { Poste } from '@/src/types'
 import { router, useLocalSearchParams } from 'expo-router'
@@ -19,14 +20,15 @@ const NuevoPoste = () => {
     const db = useSQLiteContext()
     const params = useLocalSearchParams()
     // const { currentLoteoId, currentSoporteId } = useLoteo()
+    const { session } = useAuth()
 
     // Asegurar que tenemos un id_soporte válido
     // const soporteId = currentSoporteId || (params.id ? Number(params.id) : 0)
 
     const [poste, setPoste] = useState<Partial<Poste>>({
         id_soporte: params.id ? Number(params.id) : 0,
-        created_by: params.userId as string || '',
-        updated_by: params.userId as string || ''
+        created_by: session?.user.id,
+        updated_by: session?.user.id,
     })
     const [isSinPlaca, setIsSinPlaca] = useState(false)
 
