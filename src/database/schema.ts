@@ -147,6 +147,8 @@ CREATE TABLE IF NOT EXISTS subestaciones (
 
 CREATE TABLE IF NOT EXISTS lineas_mt (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    material TEXT CHECK(material IN ('ALUMINIO','COBRE')),
+    aislacion TEXT CHECK(aislacion IN ('DESNUDO','AISLADO')),
     tipo TEXT,
     fases INTEGER,
     seccion REAL,
@@ -168,6 +170,8 @@ CREATE TABLE IF NOT EXISTS lineas_mt (
 
 CREATE TABLE IF NOT EXISTS lineas_bt (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    material TEXT CHECK(material IN ('ALUMINIO','COBRE')),
+    aislacion TEXT CHECK(aislacion IN ('DESNUDO','AISLADO')),
     tipo TEXT,
     fases INTEGER,
     seccion REAL,

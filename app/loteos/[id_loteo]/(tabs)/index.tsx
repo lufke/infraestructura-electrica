@@ -9,13 +9,13 @@ import { Text } from "react-native-paper";
 export default function IndexLoteo() {
 
     const { currentLoteoId } = useLoteo();
-    console.log(currentLoteoId);
+    // console.log(currentLoteoId);
     const [loteo, setLoteo] = useState<Loteo | null>(null);
     const db = useSQLiteContext();
 
     const loadLoteo = async () => {
         const result = await getLoteoById(db, currentLoteoId!);
-        console.log(result);
+        // console.log(result);
         setLoteo(result as any);
     }
 

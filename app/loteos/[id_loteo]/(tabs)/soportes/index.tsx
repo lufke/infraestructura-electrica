@@ -129,7 +129,7 @@ export default function SoportesList() {
                         </View>
                     )}
                     onPress={() => {
-                        console.log('Poste seleccionado:', poste.id);
+                        // console.log('Poste seleccionado:', poste.id);
                         setCurrentSoporteId(poste.id_soporte);
                         router.navigate(`/loteos/${currentLoteoId}/soportes/${poste.id_soporte}`)
                     }}
@@ -159,7 +159,7 @@ export default function SoportesList() {
                         </View>
                     )}
                     onPress={() => {
-                        console.log('Cámara seleccionada:', camara.id);
+                        // console.log('Cámara seleccionada:', camara.id);
                         setCurrentSoporteId(camara.id_soporte);
                         router.navigate(`/loteos/${currentLoteoId}/soportes/${camara.id_soporte}`)
                     }}

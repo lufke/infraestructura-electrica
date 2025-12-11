@@ -23,7 +23,7 @@ export const lightTheme = {
         surface: '#ffffff',
         error: '#b00020',
         // Colores para Expo Router
-        headerBackground: '#6200ee',
+        headerBackground: '#ee1400ff',
         headerTint: '#ffffff',
         tabBarBackground: '#ffffff',
         tabBarActiveTint: '#6200ee',
