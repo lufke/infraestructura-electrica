@@ -96,6 +96,8 @@ export default ({ config }) => {
                         isAndroidForegroundServiceEnabled: true,
                     },
                 ],
+                "expo-file-system",
+                // "expo-sharing",
             ],
 
             extra: {
@@ -105,6 +107,8 @@ export default ({ config }) => {
                 apiUrl: process.env.EXPO_PUBLIC_API_URL,
                 buildProfile: profile,
                 googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
+                supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
+                supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
             },
 
             experiments: {
