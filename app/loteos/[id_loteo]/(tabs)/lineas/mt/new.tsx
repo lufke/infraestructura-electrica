@@ -117,11 +117,6 @@ const NuevaLineaMT = () => {
             return
         }
 
-        if (!lineaMT.seccion) {
-            Alert.alert('Error', 'La sección es obligatoria')
-            return
-        }
-
         if (!lineaMT.material?.trim()) {
             Alert.alert('Error', 'El material del conductor es obligatorio')
             return
@@ -138,7 +133,7 @@ const NuevaLineaMT = () => {
 
             // Navegar al mapa con reset
             router.replace({
-                pathname: `/loteos/${currentLoteoId}/(tabs)/mapa` as any,
+                pathname: `/loteos/${currentLoteoId}/(tabs)` as any,
                 params: { refresh: Date.now().toString() }
             })
 

@@ -6,19 +6,13 @@ export default function Layout() {
         <Tabs
             screenOptions={{
                 // headerShown: false,
+
+
             }}
+        // initialRouteName="mapa_soporte_linea"
         >
             <Tabs.Screen
                 name="index"
-                options={{
-                    title: "Inicio",
-                    tabBarIcon: ({ color, size }) => (
-                        <MaterialCommunityIcons name="home" size={size} color={color} />
-                    ),
-                }}
-            />
-            <Tabs.Screen
-                name="mapa"
                 options={{
                     title: "Mapa",
                     tabBarIcon: ({ color, size }) => (
@@ -36,11 +30,25 @@ export default function Layout() {
                     // headerShown: false,
                 }}
             />
+            <Tabs.Screen
+                name="info"
+                options={{
+                    title: "Info",
+                    tabBarIcon: ({ color, size }) => (
+                        <MaterialCommunityIcons name="information-outline" size={size} color={color} />
+                    ),
+                    headerShown: true,
+                    // href: null,
+                }}
+            />
+
+
             {/* Ocultar del tab bar - solo accesibles por navegación */}
             <Tabs.Screen
                 name="soportes/new"
                 options={{
                     href: null,
+                    headerShown: true,
                 }}
             />
             <Tabs.Screen
@@ -58,6 +66,7 @@ export default function Layout() {
                         <MaterialCommunityIcons name="transmission-tower" size={size} color={color} />
                     ),
                     headerShown: true,
+                    href: null,
                 }}
             />
             <Tabs.Screen
@@ -85,6 +94,7 @@ export default function Layout() {
                     href: null,
                 }}
             />
+
         </Tabs>
     );
 }

@@ -1,6 +1,6 @@
 import { EmpalmeCreate, EmpalmeUpdate } from "@/src/types/empalme";
 import { SQLiteDatabase } from "expo-sqlite";
-import { deleteBuilder, insertBuilder, selectBuilder, softDeleteBuilder, updateBuilder } from "../builder";
+import { deleteBuilder, insertBuilder, selectBuilder, selectWithJoinBuilder, softDeleteBuilder, updateBuilder } from "../builder";
 
 export async function addEmpalme(db: SQLiteDatabase, data: Partial<EmpalmeCreate>) {
     return await insertBuilder(db, "empalmes", data);
@@ -22,15 +22,22 @@ export async function getEmpalmes(db: SQLiteDatabase) {
     return await selectBuilder(db, "empalmes");
 }
 
+export async function getEmpalmesByLoteoId(db: SQLiteDatabase, id_loteo: number) {
+    return await selectWithJoinBuilder(
+        db,
+        "empalmes",
+        "soportes",
+        "empalmes.id_soporte = soportes.id",
+        { id_loteo }
+    );
+}
+
 export async function getEmpalmesBySoporteId(db: SQLiteDatabase, id_soporte: number) {
     return await selectBuilder(db, "empalmes", { id_soporte });
 }
 
+
 export async function getEmpalmeById(db: SQLiteDatabase, id: number) {
     const result = await selectBuilder(db, "empalmes", { id });
     return result[0] || null;
-}
-
-export async function getEmpalmesByLoteoId(db: SQLiteDatabase, id_loteo: number) {
-    return await selectBuilder(db, "empalmes", { id_loteo });
 }

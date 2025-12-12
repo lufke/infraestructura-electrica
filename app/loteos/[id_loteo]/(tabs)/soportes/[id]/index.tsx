@@ -5,7 +5,7 @@ import { getEstructurasBySoporteId } from "@/src/database/queries/estructuras";
 import { getLuminariasBySoporteId } from "@/src/database/queries/luminarias";
 import { getPostesBySoporteId } from "@/src/database/queries/postes";
 import { getSeccionamientosBySoporteId } from "@/src/database/queries/seccionamientos";
-import { getSoporteById } from "@/src/database/queries/soportes";
+import { getSoporteById, hardDeleteSoporte } from "@/src/database/queries/soportes";
 import { getSubestacionesBySoporteId } from "@/src/database/queries/subestaciones";
 import { getTierrasBySoporteId } from "@/src/database/queries/tierras";
 import { getTirantesBySoporteId } from "@/src/database/queries/tirantes";
@@ -13,7 +13,7 @@ import { Camara, Empalme, Estructura, Luminaria, Poste, Seccionamiento, Soporte,
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { Appbar, Avatar, Card, Divider, FAB, Text } from "react-native-paper";
 
 
@@ -70,6 +70,25 @@ export default function SoporteDetails() {
     const navigateTo = (path: string) => {
         router.push(`/loteos/${currentLoteoId}/(tabs)/soportes/${id}/${path}`);
     };
+
+    const handleDeleteSoporte = async () => {
+        try {
+            await hardDeleteSoporte(db, Number(id))
+            Alert.alert(
+                'Soporte eliminado',
+                'El soporte ha sido eliminado correctamente',
+                [
+                    {
+                        text: 'Aceptar',
+                        onPress: () => router.back(),
+                    },
+                ]
+            )
+            // router.back()
+        } catch (error) {
+            console.error(error)
+        }
+    }
 
     const getSoporteElements = async (id_soporte: number) => {
         try {
@@ -238,7 +257,23 @@ export default function SoporteDetails() {
                 visible
                 icon={fabOpen ? 'close' : 'plus'}
                 actions={[
-                    // Solo mostrar Postes si el soporte NO es CAMARA y NO tiene ya un poste
+                    // boton para eliminar el soporte
+                    {
+                        icon: 'delete',
+                        label: 'Eliminar',
+                        onPress: () => Alert.alert('Eliminar soporte', '¿Estás seguro de eliminar este soporte?', [
+                            {
+                                text: 'Cancelar',
+                                onPress: () => console.log('Cancelado'),
+                                style: 'cancel',
+                            },
+                            {
+                                text: 'Eliminar',
+                                onPress: handleDeleteSoporte,
+                            },
+                        ]),
+                    },
+                    ,// Solo mostrar Postes si el soporte NO es CAMARA y NO tiene ya un poste
                     (soporte?.tipo == 'POSTE' && (!soporteElements.postes || soporteElements.postes.length === 0)) && {
                         icon: 'transmission-tower',
                         label: 'Postes',
