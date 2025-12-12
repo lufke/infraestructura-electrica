@@ -30,3 +30,7 @@ export async function getEmpalmeById(db: SQLiteDatabase, id: number) {
     const result = await selectBuilder(db, "empalmes", { id });
     return result[0] || null;
 }
+
+export async function getEmpalmesByLoteoId(db: SQLiteDatabase, id_loteo: number) {
+    return await selectBuilder(db, "empalmes", { id_loteo });
+}
