@@ -128,17 +128,10 @@ export default function SoporteDetails() {
                 {/* Element Cards */}
                 {renderElementCard('Postes', 'transmission-tower', soporteElements.postes, (item: Poste) => (
                     <>
+
                         <View style={styles.infoRow}>
-                            <Text style={styles.label}>Placa:</Text>
                             <Text>{item.placa}</Text>
-                        </View>
-                        <View style={styles.infoRow}>
-                            <Text style={styles.label}>Material:</Text>
-                            <Text>{item.material}</Text>
-                        </View>
-                        <View style={styles.infoRow}>
-                            <Text style={styles.label}>Altura:</Text>
-                            <Text>{item.altura_nivel_tension}</Text>
+                            <Text>{item.material} {item.altura_nivel_tension}</Text>
                         </View>
                     </>
                 ))}
@@ -147,33 +140,29 @@ export default function SoporteDetails() {
                     <>
                         {item.placa && (
                             <View style={styles.infoRow}>
-                                <Text style={styles.label}>Placa:</Text>
                                 <Text>{item.placa}</Text>
+                                <Text>TIPO: {item.tipo_camara}</Text>
                             </View>
                         )}
+                    </>
+                ))}
+
+                {renderElementCard('Estructuras', 'railroad-light', soporteElements.estructuras, (item: Estructura) => (
+                    <>
                         <View style={styles.infoRow}>
-                            <Text style={styles.label}>Tipo:</Text>
-                            <Text>{item.tipo_camara}</Text>
+                            <Text>{item.nivel_tension}</Text>
+                            <Text>{item.descripcion} {item.fases}F</Text>
                         </View>
                     </>
                 ))}
 
-                {renderElementCard('Estructuras', 'cube-outline', soporteElements.estructuras, (item: Estructura) => (
+
+
+                {renderElementCard('Subestaciones', 'circle-multiple-outline', soporteElements.subestaciones, (item: Subestacion) => (
                     <>
                         <View style={styles.infoRow}>
-                            <Text style={styles.label}>Tipo:</Text>
-                            <Text>{item.descripcion}</Text>
-                        </View>
-                    </>
-                ))}
-
-
-
-                {renderElementCard('Subestaciones', 'flash', soporteElements.subestaciones, (item: Subestacion) => (
-                    <>
-                        <View style={styles.infoRow}>
-                            <Text style={styles.label}>Nombre:</Text>
-                            <Text>{item.nombre}</Text>
+                            <Text>S/E {item.letrero}</Text>
+                            <Text>{item.potencia}kVA - {item.fases}F</Text>
                         </View>
                     </>
                 ))}
@@ -181,14 +170,14 @@ export default function SoporteDetails() {
                 {renderElementCard('Seccionamientos', 'electric-switch', soporteElements.seccionamientos, (item: Seccionamiento) => (
                     <>
                         <View style={styles.infoRow}>
-                            <Text style={styles.label}>Tipo:</Text>
-                            <Text>{item.tipo}</Text>
+                            <Text>{item.tipo} {item.letrero}</Text>
+                            <Text>{item.posicion} {item.fases}F</Text>
                         </View>
                     </>
                 ))}
 
 
-                {renderElementCard('Luminarias', 'lightbulb', soporteElements.luminarias, (item: Luminaria) => (
+                {renderElementCard('Luminarias', 'lightbulb-on-outline', soporteElements.luminarias, (item: Luminaria) => (
                     <>
                         <View style={styles.infoRow}>
                             <Text style={styles.label}>Tipo:</Text>
@@ -207,22 +196,16 @@ export default function SoporteDetails() {
                     </>
                 ))}
 
-                {renderElementCard('Empalmes', 'connection', soporteElements.empalmes, (item: Empalme) => (
+                {renderElementCard('Empalmes', 'home-lightning-bolt-outline', soporteElements.empalmes, (item: Empalme) => (
                     <>
                         <View style={styles.infoRow}>
-                            <Text style={styles.label}>Nº Medidor:</Text>
                             <Text>{item.n_medidor}</Text>
+                            <Text>{item.nivel_tension} {item.fases}F - {item.activo ? 'Activo' : 'Inactivo'}</Text>
                         </View>
-                        {item.direccion && (
-                            <View style={styles.infoRow}>
-                                <Text style={styles.label}>Dirección:</Text>
-                                <Text>{item.direccion}</Text>
-                            </View>
-                        )}
                     </>
                 ))}
 
-                {renderElementCard('Tierras', 'earth', soporteElements.tierras, (item: Tierra) => (
+                {renderElementCard('Tierras', 'filter-variant', soporteElements.tierras, (item: Tierra) => (
                     <>
                         <View style={styles.infoRow}>
                             <Text style={styles.label}>Tipo:</Text>
@@ -231,14 +214,15 @@ export default function SoporteDetails() {
                     </>
                 ))}
 
-                {renderElementCard('Tirantes', 'cable-data', soporteElements.tirantes, (item: Tirante) => (
+                {renderElementCard('Tirantes', 'anchor', soporteElements.tirantes, (item: Tirante) => (
                     <>
                         <View style={styles.infoRow}>
-                            <Text style={styles.label}>Tipo:</Text>
-                            <Text>{item.tipo}</Text>
+                            <Text>{item.nivel_tension}</Text>
+                            <Text>{item.tipo} {item.fijacion}</Text>
                         </View>
                     </>
                 ))}
+
 
                 <Card style={styles.instructionCard}>
                     <Card.Content>

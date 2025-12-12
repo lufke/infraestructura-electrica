@@ -38,6 +38,7 @@ const NuevaLineaBT = () => {
                 ...prev,
                 id_soporte_inicio: Number(params.id_soporte_inicio),
                 id_soporte_final: Number(params.id_soporte_final),
+                largo: params.distancia_metros ? Number(params.distancia_metros) : 0,
                 created_by: session?.user.id,
                 updated_by: session?.user.id,
             }))
@@ -51,6 +52,7 @@ const NuevaLineaBT = () => {
             setLineaBT({
                 id_soporte_inicio: params.id_soporte_inicio ? Number(params.id_soporte_inicio) : 0,
                 id_soporte_final: params.id_soporte_final ? Number(params.id_soporte_final) : 0,
+                largo: params.distancia_metros ? Number(params.distancia_metros) : 0,
                 created_by: session?.user.id,
                 updated_by: session?.user.id,
             })
@@ -149,7 +151,7 @@ const NuevaLineaBT = () => {
             // Navegar al mapa con reset
             if (currentLoteoId) {
                 router.replace({
-                    pathname: `/loteos/${currentLoteoId}/(tabs)/mapa`,
+                    pathname: `/loteos/${currentLoteoId}/(tabs)/mapa` as any,
                     params: { refresh: Date.now().toString() }
                 })
             } else {
@@ -271,6 +273,9 @@ const NuevaLineaBT = () => {
             {/* Solo para debug - puedes comentar esto en producción */}
             <Text variant="bodySmall" style={styles.debugText}>
                 Parámetros: {JSON.stringify(params)}
+            </Text>
+            <Text variant="bodySmall" style={styles.debugText}>
+                TRAMO BT: {JSON.stringify(lineaBT)}
             </Text>
         </KeyboardAwareScrollView>
     )

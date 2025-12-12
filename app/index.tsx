@@ -35,6 +35,7 @@ export default function Index() {
   };
 
 
+
   return (
     <View
       style={{
@@ -71,6 +72,7 @@ export default function Index() {
       >
         AGREGAR LOTEO
       </Button>
+
 
       <Button
         mode="outlined"

@@ -1,3 +1,4 @@
+import ExportJsonButton from "@/src/components/ui/ExportJSONButton";
 import { useLoteo } from "@/src/contexts/LoteoContext";
 import { getLoteoById } from "@/src/database/queries/loteos";
 import { Loteo } from "@/src/types/loteo";
@@ -28,6 +29,7 @@ export default function IndexLoteo() {
         <View>
             <Text>{currentLoteoId}</Text>
             <Text>{JSON.stringify(loteo)}</Text>
+            <ExportJsonButton loteoId={currentLoteoId} />
         </View>
     )
 }

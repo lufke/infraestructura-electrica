@@ -5,7 +5,7 @@ export default function Layout() {
     return (
         <Tabs
             screenOptions={{
-                headerShown: false,
+                // headerShown: false,
             }}
         >
             <Tabs.Screen
@@ -33,7 +33,7 @@ export default function Layout() {
                     tabBarIcon: ({ color, size }) => (
                         <MaterialCommunityIcons name="transmission-tower" size={size} color={color} />
                     ),
-                    headerShown: false,
+                    // headerShown: false,
                 }}
             />
             {/* Ocultar del tab bar - solo accesibles por navegación */}
@@ -47,6 +47,7 @@ export default function Layout() {
                 name="soportes/[id]"
                 options={{
                     href: null,
+                    headerShown: false,
                 }}
             />
             <Tabs.Screen
@@ -56,7 +57,7 @@ export default function Layout() {
                     tabBarIcon: ({ color, size }) => (
                         <MaterialCommunityIcons name="transmission-tower" size={size} color={color} />
                     ),
-                    headerShown: false,
+                    headerShown: true,
                 }}
             />
             <Tabs.Screen

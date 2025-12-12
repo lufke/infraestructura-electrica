@@ -50,8 +50,12 @@ function ThemedApp() {
           contentStyle: {
             backgroundColor: theme.colors.background,
           },
+          // headerShown: false,
         }}
-      />
+      >
+        <Stack.Screen name="index" options={{ headerShown: true }} />
+        <Stack.Screen name="loteos/[id_loteo]/(tabs)" options={{ headerShown: false }} />
+      </Stack>
     </PaperProvider>
   )
 }

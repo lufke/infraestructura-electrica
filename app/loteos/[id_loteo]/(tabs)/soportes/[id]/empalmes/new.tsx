@@ -70,15 +70,10 @@ const NuevoEmpalme = () => {
             return
         }
 
-        if (!empalme.activo) {
-            Alert.alert('Error', 'El estado es obligatorio')
-            return
-        }
-
-        if (!empalme.capacidad) {
-            Alert.alert('Error', 'La capacidad es obligatoria y debe ser mayor a 0')
-            return
-        }
+        // if (!empalme.activo) {
+        //     Alert.alert('Error', 'El estado es obligatorio')
+        //     return
+        // }
 
         try {
             const resultado = await addEmpalme(db, empalme)

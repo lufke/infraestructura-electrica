@@ -38,6 +38,7 @@ const NuevaLineaMT = () => {
                 ...prev,
                 id_soporte_inicio: Number(params.id_soporte_inicio),
                 id_soporte_final: Number(params.id_soporte_final),
+                largo: params.distancia_metros ? Number(params.distancia_metros) : 0,
                 created_by: session?.user.id,
                 updated_by: session?.user.id,
             }))
@@ -51,6 +52,7 @@ const NuevaLineaMT = () => {
             setLineaMT({
                 id_soporte_inicio: params.id_soporte_inicio ? Number(params.id_soporte_inicio) : 0,
                 id_soporte_final: params.id_soporte_final ? Number(params.id_soporte_final) : 0,
+                largo: params.distancia_metros ? Number(params.distancia_metros) : 0,
                 created_by: session?.user.id,
                 updated_by: session?.user.id,
             })
@@ -136,7 +138,7 @@ const NuevaLineaMT = () => {
 
             // Navegar al mapa con reset
             router.replace({
-                pathname: `/loteos/${currentLoteoId}/(tabs)/mapa`,
+                pathname: `/loteos/${currentLoteoId}/(tabs)/mapa` as any,
                 params: { refresh: Date.now().toString() }
             })
 

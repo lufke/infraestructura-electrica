@@ -108,8 +108,8 @@ export default function SoportesList() {
             return (
                 <List.Item
                     title={poste.placa || "POSTE SIN PLACA"}
-                    description={`ID POSTE: ${poste.id} - ID Soporte: ${poste.id_soporte}`}
-                    // description={`Material: ${poste.material || 'N/A'} - Altura: ${poste.altura_nivel_tension || 'N/A'} - ID Soporte: ${poste.id_soporte}`}
+                    // description={`ID POSTE: ${poste.altura_nivel_tension} - ID Soporte: ${poste.id_soporte}`}
+                    description={`Tipo: ${poste.altura_nivel_tension || 'N/A'} - ${poste.material || 'N/A'}`}
                     left={props => (
                         <List.Icon
                             {...props}

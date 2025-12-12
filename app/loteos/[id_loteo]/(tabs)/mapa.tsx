@@ -1,6 +1,8 @@
 import { useAuth } from "@/src/contexts/AuthContext";
 import { useLoteo } from "@/src/contexts/LoteoContext";
 import { getCamarasByLoteoId } from "@/src/database/queries/camaras";
+import { getLineasBTByLoteoId } from "@/src/database/queries/lineas_bt"; // Importar función para líneas BT
+import { getLineasMTByLoteoId } from "@/src/database/queries/lineas_mt"; // Importar función para líneas MT
 import { getPostesByLoteoId } from "@/src/database/queries/postes";
 import { addSoporte, getSoportesByLoteoId } from "@/src/database/queries/soportes";
 import * as Location from "expo-location";
@@ -15,6 +17,16 @@ import { Button, Chip, Dialog, FAB, IconButton, Portal, RadioButton, Text } from
 const VERTICAL_150M = 0.00135; // 150 metros verticales
 const HORIZONTAL_ASPECT_RATIO = 1.25; // Relación de aspecto (ancho/alto)
 
+// Definir tipos para las líneas
+interface LineaMapa {
+    id: number;
+    tipo: 'linea_bt' | 'linea_mt';
+    soporte_inicio_id: number;
+    soporte_final_id: number;
+    distancia_metros?: number;
+    coordenadas: Array<{ latitude: number; longitude: number }>;
+}
+
 export default function Mapa() {
     const { currentLoteoId, setCurrentSoporteId } = useLoteo();
     const { session } = useAuth();
@@ -24,6 +36,7 @@ export default function Mapa() {
 
     const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number; altitude?: number | null; accuracy?: number | null } | null>(null);
     const [markers, setMarkers] = useState<Array<{ id: number; latitude: number; longitude: number; tipo: string; placa?: string }>>([]);
+    const [lineas, setLineas] = useState<LineaMapa[]>([]); // Estado para líneas
     const [region, setRegion] = useState<Region>({
         latitude: -33.45,
         longitude: -70.6667,
@@ -45,16 +58,19 @@ export default function Mapa() {
     // Estado para FAB.Group
     const [fabOpen, setFabOpen] = useState(false);
 
-    // Cargar soportes
-    const loadSoportes = async () => {
+    // Cargar soportes y líneas
+    const loadSoportesYLineas = async () => {
         if (!currentLoteoId) return;
         try {
-            const [soportes, postes, camaras] = await Promise.all([
+            const [soportes, postes, camaras, lineasBT, lineasMT] = await Promise.all([
                 getSoportesByLoteoId(db, currentLoteoId),
                 getPostesByLoteoId(db, currentLoteoId),
-                getCamarasByLoteoId(db, currentLoteoId)
+                getCamarasByLoteoId(db, currentLoteoId),
+                getLineasBTByLoteoId(db, currentLoteoId), // Cargar líneas BT
+                getLineasMTByLoteoId(db, currentLoteoId)  // Cargar líneas MT
             ]);
 
+            // Mapear soportes a marcadores
             const mappedMarkers = (soportes as any[]).map(s => {
                 let placa = undefined;
                 if (s.tipo === 'POSTE') {
@@ -72,14 +88,55 @@ export default function Mapa() {
                 };
             });
             setMarkers(mappedMarkers);
+
+            // Mapear líneas para el mapa
+            const mappedLineas: LineaMapa[] = [];
+
+            // Función auxiliar para agregar línea al mapa
+            const agregarLineaAlMapa = (
+                linea: any,
+                tipo: 'linea_bt' | 'linea_mt',
+                soportesArray: any[]
+            ) => {
+                // Buscar coordenadas de los soportes
+                const soporteInicio = soportesArray.find(s => s.id === linea.id_soporte_inicio);
+                const soporteFinal = soportesArray.find(s => s.id === linea.id_soporte_final);
+
+                if (soporteInicio && soporteFinal) {
+                    mappedLineas.push({
+                        id: linea.id,
+                        tipo: tipo,
+                        soporte_inicio_id: linea.id_soporte_inicio,
+                        soporte_final_id: linea.id_soporte_final,
+                        distancia_metros: linea.distancia_metros,
+                        coordenadas: [
+                            { latitude: soporteInicio.latitud, longitude: soporteInicio.longitud },
+                            { latitude: soporteFinal.latitud, longitude: soporteFinal.longitud }
+                        ]
+                    });
+                }
+            };
+
+            // Procesar líneas BT
+            (lineasBT as any[]).forEach(linea => {
+                agregarLineaAlMapa(linea, 'linea_bt', soportes as any[]);
+            });
+
+            // Procesar líneas MT
+            (lineasMT as any[]).forEach(linea => {
+                agregarLineaAlMapa(linea, 'linea_mt', soportes as any[]);
+            });
+
+            setLineas(mappedLineas);
+            console.log(`Cargadas ${mappedLineas.length} líneas (${lineasBT.length} BT, ${lineasMT.length} MT)`);
         } catch (error) {
-            console.error("Error cargando soportes:", error);
+            console.error("Error cargando datos:", error);
         }
     };
 
     useFocusEffect(
         React.useCallback(() => {
-            loadSoportes();
+            loadSoportesYLineas();
             // Resetear selección al cambiar de loteo
             resetLineMode();
         }, [currentLoteoId])
@@ -192,27 +249,6 @@ export default function Mapa() {
                             longitudeDelta: Math.max(longitudeDelta, 0.002),
                         }, 500);
                     }
-
-                    // Navegar a la pantalla de creación de línea después de un breve retraso
-                    setTimeout(() => {
-                        if (currentLoteoId && isLineMode) {
-                            // Extraer el tipo (bt o mt) de isLineMode
-                            const tipo = isLineMode === 'linea_bt' ? 'bt' : 'mt';
-
-                            // Navegar a la pantalla de creación de línea con parámetros
-                            router.push({
-                                pathname: `/loteos/${currentLoteoId}/(tabs)/lineas/${tipo}/new`,
-                                params: {
-                                    id_soporte_inicio: newSelection[0].id.toString(),
-                                    id_soporte_final: newSelection[1].id.toString(),
-                                    distancia_metros: dist.toString()
-                                }
-                            });
-
-                            // Resetear el modo línea
-                            resetLineMode();
-                        }
-                    }, 800); // Pequeño retraso para que el usuario vea la línea creada
                 } else {
                     // Ya hay 2 seleccionados, reemplazar
                     Alert.alert(
@@ -240,6 +276,29 @@ export default function Mapa() {
         }
     };
 
+    // Función para guardar la línea y navegar al formulario
+    const handleSaveLine = () => {
+        if (selectedSoportes.length !== 2 || !isLineMode || !currentLoteoId) {
+            return;
+        }
+
+        // Extraer el tipo (bt o mt) de isLineMode
+        const tipo = isLineMode === 'linea_bt' ? 'bt' : 'mt';
+
+        // Navegar a la pantalla de creación de línea con parámetros
+        router.push({
+            pathname: `/loteos/${currentLoteoId}/(tabs)/lineas/${tipo}/new` as any,
+            params: {
+                id_soporte_inicio: selectedSoportes[0].id.toString(),
+                id_soporte_final: selectedSoportes[1].id.toString(),
+                distancia_metros: distance?.toString() || '0'
+            }
+        });
+
+        // Resetear el modo línea
+        resetLineMode();
+    };
+
     const handleStartLineMode = (type: 'linea_bt' | 'linea_mt') => {
         if (markers.length < 2) {
             Alert.alert(
@@ -255,7 +314,7 @@ export default function Mapa() {
 
         Alert.alert(
             `Modo línea ${type === 'linea_bt' ? 'BT' : 'MT'} activado`,
-            "Selecciona dos soportes para crear una línea entre ellos. Después de seleccionar el segundo soporte, se abrirá el formulario de creación de línea.",
+            "Selecciona dos soportes para crear una línea entre ellos y luego presiona 'Guardar Línea'",
             [{ text: "Entendido" }]
         );
     };
@@ -379,11 +438,12 @@ export default function Mapa() {
         return isSelected ? 28 : 22;
     };
 
-    const getLineColor = () => {
-        if (isLineMode === 'linea_bt') {
-            return '#22ff3fff'; // Naranja para BT
-        } else if (isLineMode === 'linea_mt') {
-            return '#ff0000ff'; // Púrpura para MT
+    const getLineColor = (tipo?: 'linea_bt' | 'linea_mt') => {
+        const lineType = tipo || isLineMode;
+        if (lineType === 'linea_bt') {
+            return '#22ff3fff'; // Verde para BT
+        } else if (lineType === 'linea_mt') {
+            return '#ff0000ff'; // Rojo para MT
         }
         return '#3498db'; // Azul por defecto
     };
@@ -439,6 +499,8 @@ export default function Mapa() {
                         title={`${marker.tipo}`}
                         description={marker.placa ? `${marker.placa}` : `Soporte #${marker.id}`}
                         onPress={() => handleMarkerPress(marker)}
+                        onCalloutPress={() => router.push(`/loteos/${currentLoteoId}/(tabs)/soportes/${marker.id}`)}
+                    // onCalloutPress={() => console.log(marker)}
                     >
                         <View style={{
                             width: getMarkerSize(marker),
@@ -456,7 +518,17 @@ export default function Mapa() {
                     </Marker>
                 ))}
 
-                {/* Línea entre soportes seleccionados */}
+                {/* Líneas existentes (BT y MT) */}
+                {lineas.map((linea) => (
+                    <Polyline
+                        key={`${linea.tipo}-${linea.id}`}
+                        coordinates={linea.coordenadas}
+                        strokeColor={getLineColor(linea.tipo)}
+                        strokeWidth={3}
+                    />
+                ))}
+
+                {/* Línea temporal entre soportes seleccionados (solo en modo creación) */}
                 {showLine && selectedSoportes.length === 2 && (
                     <Polyline
                         coordinates={[
@@ -465,6 +537,7 @@ export default function Mapa() {
                         ]}
                         strokeColor={getLineColor()}
                         strokeWidth={4}
+                        lineDashPattern={[10, 5]} // Línea punteada para distinguirla de las existentes
                     />
                 )}
             </MapView>
@@ -498,7 +571,7 @@ export default function Mapa() {
                     <Text variant="bodyLarge" style={styles.selectionTitle}>
                         {selectedSoportes.length === 0 && "👆 Selecciona el primer soporte"}
                         {selectedSoportes.length === 1 && `✅ Primer soporte: ${selectedSoportes[0].tipo} #${selectedSoportes[0].id}`}
-                        {selectedSoportes.length === 2 && "✅ Listo! Redirigiendo al formulario..."}
+                        {selectedSoportes.length === 2 && "✅ Listo! Presiona 'Guardar Línea' para continuar"}
                     </Text>
 
                     {selectedSoportes.length > 0 && (
@@ -528,6 +601,18 @@ export default function Mapa() {
                             📐 Distancia: {formatDistance(distance)}
                         </Text>
                     )}
+
+                    {/* Botón para guardar la línea */}
+                    <Button
+                        mode="contained"
+                        onPress={handleSaveLine}
+                        disabled={selectedSoportes.length !== 2}
+                        icon="content-save"
+                        style={styles.saveButton}
+                        buttonColor={getLineColor()}
+                    >
+                        Guardar Línea
+                    </Button>
                 </View>
             )}
 
@@ -636,5 +721,9 @@ const styles = StyleSheet.create({
         color: "#2c3e50",
         textAlign: "center",
         marginBottom: 12,
+    },
+    saveButton: {
+        marginTop: 8,
+        borderRadius: 8,
     },
 });
