@@ -14,7 +14,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import React, { useEffect, useState } from "react";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
-import { Appbar, Avatar, Card, Divider, FAB, Text } from "react-native-paper";
+import { Appbar, Avatar, Card, Divider, FAB, Text, TouchableRipple } from "react-native-paper";
 
 
 type SoporteElements = {
@@ -118,6 +118,7 @@ export default function SoporteDetails() {
             <Appbar.Header>
                 <Appbar.BackAction onPress={() => router.back()} />
                 <Appbar.Content title={`Soporte #${id}`} />
+                <Appbar.Action icon="map" onPress={() => router.push(`/loteos/${currentLoteoId}`)} />
                 {/* <Appbar.Action icon={'plus'} onPress={getSoporteElements} /> */}
             </Appbar.Header>
 
@@ -149,55 +150,59 @@ export default function SoporteDetails() {
                     <>
 
                         <View style={styles.infoRow}>
-                            <Text>{item.placa}</Text>
+                            <Text>#{item.id} {item.placa}</Text>
                             <Text>{item.material} {item.altura_nivel_tension}</Text>
                         </View>
                     </>
-                ))}
+                ), (item) => navigateTo(`postes?id_elemento=${item.id}`))}
 
                 {renderElementCard('Cámaras', 'square-outline', soporteElements.camaras, (item: Camara) => (
                     <>
                         {item.placa && (
                             <View style={styles.infoRow}>
-                                <Text>{item.placa}</Text>
+                                <Text>#{item.id} {item.placa}</Text>
                                 <Text>TIPO: {item.tipo_camara}</Text>
                             </View>
                         )}
                     </>
-                ))}
+                ), (item) => navigateTo(`camaras?id_elemento=${item.id}`))}
 
                 {renderElementCard('Estructuras', 'railroad-light', soporteElements.estructuras, (item: Estructura) => (
                     <>
                         <View style={styles.infoRow}>
-                            <Text>{item.nivel_tension}</Text>
+                            <Text>#{item.id} {item.nivel_tension}</Text>
                             <Text>{item.descripcion} {item.fases}F</Text>
                         </View>
                     </>
-                ))}
+                ), (item) => navigateTo(`estructuras?id_elemento=${item.id}`))}
 
 
 
                 {renderElementCard('Subestaciones', 'circle-multiple-outline', soporteElements.subestaciones, (item: Subestacion) => (
                     <>
                         <View style={styles.infoRow}>
-                            <Text>S/E {item.letrero}</Text>
+                            <Text>#{item.id} S/E {item.letrero}</Text>
                             <Text>{item.potencia}kVA - {item.fases}F</Text>
                         </View>
                     </>
-                ))}
+                ), (item) => navigateTo(`subestaciones?id_elemento=${item.id}`))}
 
                 {renderElementCard('Seccionamientos', 'electric-switch', soporteElements.seccionamientos, (item: Seccionamiento) => (
                     <>
                         <View style={styles.infoRow}>
-                            <Text>{item.tipo} {item.letrero}</Text>
+                            <Text>#{item.id} {item.tipo} {item.letrero}</Text>
                             <Text>{item.posicion} {item.fases}F</Text>
                         </View>
                     </>
-                ))}
+                ), (item) => navigateTo(`seccionamientos?id_elemento=${item.id}`))}
 
 
                 {renderElementCard('Luminarias', 'lightbulb-on-outline', soporteElements.luminarias, (item: Luminaria) => (
                     <>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>ID:</Text>
+                            <Text>#{item.id}</Text>
+                        </View>
                         <View style={styles.infoRow}>
                             <Text style={styles.label}>Tipo:</Text>
                             <Text>{item.tipo_lampara}</Text>
@@ -213,34 +218,33 @@ export default function SoporteDetails() {
                             </View>
                         )}
                     </>
-                ))}
+                ), (item) => navigateTo(`luminarias?id_elemento=${item.id}`))}
 
                 {renderElementCard('Empalmes', 'home-lightning-bolt-outline', soporteElements.empalmes, (item: Empalme) => (
                     <>
                         <View style={styles.infoRow}>
-                            <Text>{item.n_medidor}</Text>
+                            <Text>#{item.id} {item.n_medidor}</Text>
                             <Text>{item.nivel_tension} {item.fases}F - {item.activo ? 'Activo' : 'Inactivo'}</Text>
                         </View>
                     </>
-                ))}
+                ), (item) => navigateTo(`empalmes?id_elemento=${item.id}`))}
 
                 {renderElementCard('Tierras', 'filter-variant', soporteElements.tierras, (item: Tierra) => (
                     <>
                         <View style={styles.infoRow}>
-                            <Text style={styles.label}>Tipo:</Text>
-                            <Text>{item.tipo}</Text>
+                            <Text>#{item.id} Tipo: {item.tipo}</Text>
                         </View>
                     </>
-                ))}
+                ), (item) => navigateTo(`tierras?id_elemento=${item.id}`))}
 
                 {renderElementCard('Tirantes', 'anchor', soporteElements.tirantes, (item: Tirante) => (
                     <>
                         <View style={styles.infoRow}>
-                            <Text>{item.nivel_tension}</Text>
+                            <Text>#{item.id} {item.nivel_tension}</Text>
                             <Text>{item.tipo} {item.fijacion}</Text>
                         </View>
                     </>
-                ))}
+                ), (item) => navigateTo(`tirantes?id_elemento=${item.id}`))}
 
 
                 <Card style={styles.instructionCard}>
@@ -338,7 +342,7 @@ export default function SoporteDetails() {
     );
 }
 
-const renderElementCard = (title: string, icon: string, elements: any[] | undefined, renderContent: (item: any) => React.ReactNode) => {
+const renderElementCard = (title: string, icon: string, elements: any[] | undefined, renderContent: (item: any) => React.ReactNode, onItemPress?: (item: any) => void) => {
     if (!elements || elements.length === 0) return null;
     return (
         <Card style={styles.elementCard}>
@@ -348,10 +352,12 @@ const renderElementCard = (title: string, icon: string, elements: any[] | undefi
                     <Text style={styles.elementTitle}>{title} ({elements.length})</Text>
                 </View>
                 {elements.map((item, index) => (
-                    <View key={index}>
-                        {index > 0 && <Divider style={{ marginVertical: 8 }} />}
-                        {renderContent(item)}
-                    </View>
+                    <TouchableRipple key={index} onPress={() => onItemPress && onItemPress(item)}>
+                        <View>
+                            {index > 0 && <Divider style={{ marginVertical: 8 }} />}
+                            {renderContent(item)}
+                        </View>
+                    </TouchableRipple>
                 ))}
             </Card.Content>
         </Card>

@@ -1,8 +1,7 @@
 import { useAuth } from '@/src/contexts/AuthContext'
-import { useLoteo } from '@/src/contexts/LoteoContext'
 import { addEstructura } from '@/src/database/queries/estructuras'
 import { Estructura } from '@/src/types'
-import { router, useLocalSearchParams } from 'expo-router'
+import { router, useGlobalSearchParams } from 'expo-router'
 import { useSQLiteContext } from 'expo-sqlite'
 import React, { useState } from 'react'
 import {
@@ -19,15 +18,11 @@ import {
 
 const NuevaEstructura = () => {
     const db = useSQLiteContext()
-    const params = useLocalSearchParams()
-    const { currentSoporteId } = useLoteo()
+    const params = useGlobalSearchParams()
     const { session } = useAuth()
 
-    // Asegurar que tenemos un id_soporte válido
-    const soporteId = currentSoporteId || (params.id ? Number(params.id) : 0)
-
     const [estructura, setEstructura] = useState<Partial<Estructura>>({
-        id_soporte: soporteId,
+        id_soporte: params.id ? Number(params.id) : 0,
         created_by: session?.user.id,
         updated_by: session?.user.id,
     })
@@ -216,7 +211,7 @@ const NuevaEstructura = () => {
             <Button mode="outlined" onPress={() => router.back()} style={styles.button} icon="arrow-left">
                 Cancelar
             </Button>
-            <Text variant="bodyMedium">{JSON.stringify(estructura)}</Text>
+
         </KeyboardAwareScrollView>
     )
 }

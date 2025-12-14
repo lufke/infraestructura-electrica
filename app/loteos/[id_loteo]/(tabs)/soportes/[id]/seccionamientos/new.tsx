@@ -1,8 +1,7 @@
 import { useAuth } from "@/src/contexts/AuthContext";
-import { useLoteo } from "@/src/contexts/LoteoContext";
 import { addSeccionamiento } from "@/src/database/queries/seccionamientos";
 import { Seccionamiento } from "@/src/types";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useGlobalSearchParams, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useState } from "react";
 import { Alert, StyleSheet } from "react-native";
@@ -12,19 +11,28 @@ import { Button, SegmentedButtons, Text, TextInput } from "react-native-paper";
 export default function SeccionamientosNew() {
 
     const db = useSQLiteContext()
-    const params = useLocalSearchParams()
+    const params = useGlobalSearchParams()
     const router = useRouter()
-    const { currentSoporteId } = useLoteo()
     const { session } = useAuth()
 
-    // Asegurar que tenemos un id_soporte válido
-    const soporteId = currentSoporteId || (params.id ? Number(params.id) : 0)
-
     const [seccionamiento, setSeccionamiento] = useState<Partial<Seccionamiento>>({
-        id_soporte: soporteId,
+        id_soporte: params.id ? Number(params.id) : 0,
         created_by: session?.user.id,
         updated_by: session?.user.id,
     })
+
+    const [isSinLetrero, setIsSinLetrero] = useState(false)
+    const [isNumerico, setIsNumerico] = useState(false)
+
+    const toggleSinLetrero = () => {
+        if (!isSinLetrero) {
+            setSeccionamiento(prev => ({ ...prev, letrero: 'SIN LETRERO' }))
+            setIsSinLetrero(true)
+        } else {
+            setSeccionamiento(prev => ({ ...prev, letrero: '' }))
+            setIsSinLetrero(false)
+        }
+    }
 
     const handleTipoChange = (value: string) => {
         setSeccionamiento(prev => ({
@@ -146,13 +154,16 @@ export default function SeccionamientosNew() {
             keyboardShouldPersistTaps="handled"
         >
             <Text variant="headlineMedium" style={styles.title}>Nuevo Seccionamiento</Text>
-            <Text>{JSON.stringify(seccionamiento)}</Text>
             <TextInput
                 label="Letrero"
                 value={seccionamiento.letrero || ''}
                 onChangeText={handleLetreroChange}
                 style={styles.input}
                 mode="outlined"
+                disabled={isSinLetrero}
+                keyboardType={isNumerico ? 'numeric' : 'default'}
+                right={<TextInput.Icon icon={isSinLetrero ? 'close-circle' : 'tag-off'} onPress={toggleSinLetrero} forceTextInputFocus={false} />}
+                left={<TextInput.Icon icon={isNumerico ? 'alphabetical' : 'numeric'} onPress={() => setIsNumerico(!isNumerico)} forceTextInputFocus={false} />}
             />
             <SegmentedButtons
                 value={seccionamiento.nivel_tension || ''}

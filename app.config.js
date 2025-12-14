@@ -31,7 +31,7 @@ export default ({ config }) => {
             icon: "./assets/images/icon.png",
 
             scheme: "infraestructuraelectrica",
-            version: "1.0.0",
+            version: "0.0.3",
             orientation: "portrait",
             userInterfaceStyle: "automatic",
             newArchEnabled: true,

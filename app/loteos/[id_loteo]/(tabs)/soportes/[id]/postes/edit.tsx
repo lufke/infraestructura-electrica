@@ -1,12 +1,14 @@
 import { useAuth } from '@/src/contexts/AuthContext'
-import { addPoste } from '@/src/database/queries/postes'
+import { getPosteById, updatePoste } from '@/src/database/queries/postes'
 import { Poste } from '@/src/types'
-import { router, useGlobalSearchParams } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import { useSQLiteContext } from 'expo-sqlite'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
+    ActivityIndicator,
     Alert,
     StyleSheet,
+    View
 } from 'react-native'
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view"
 import {
@@ -16,18 +18,35 @@ import {
     TextInput
 } from 'react-native-paper'
 
-const NuevoPoste = () => {
+const EditarPoste = () => {
     const db = useSQLiteContext()
-    const params = useGlobalSearchParams()
+    const { id_elemento } = useLocalSearchParams<{ id_elemento: string }>()
     const { session } = useAuth()
 
-    const [poste, setPoste] = useState<Partial<Poste>>({
-        id_soporte: params.id ? Number(params.id) : 0,
-        created_by: session?.user.id,
-        updated_by: session?.user.id,
-    })
+    const [poste, setPoste] = useState<Partial<Poste>>({})
+    const [loading, setLoading] = useState(true)
     const [isSinPlaca, setIsSinPlaca] = useState(false)
     const [isNumerico, setIsNumerico] = useState(false)
+
+    useEffect(() => {
+        loadData()
+    }, [id_elemento])
+
+    const loadData = async () => {
+        if (!id_elemento) return;
+        try {
+            const data = await getPosteById(db, Number(id_elemento)) as Poste;
+            if (data) {
+                setPoste({ ...data, updated_by: session?.user.id });
+                if (data.placa === 'SIN PLACA') setIsSinPlaca(true);
+            }
+        } catch (error) {
+            console.error(error);
+            Alert.alert('Error', 'No se pudo cargar la información');
+        } finally {
+            setLoading(false);
+        }
+    }
 
     const toggleSinPlaca = () => {
         if (!isSinPlaca) {
@@ -39,80 +58,47 @@ const NuevoPoste = () => {
         }
     }
 
-    const handleNivelTensionChange = (value: string) => {
-        setPoste(prev => ({
-            ...prev,
-            altura_nivel_tension: value as any
-        }))
-    }
-
-    const handleMaterialChange = (value: string) => {
-        setPoste(prev => ({
-            ...prev,
-            material: value
-        }))
-    }
-
-    const handleCondicionChange = (value: string) => {
-        setPoste(prev => ({
-            ...prev,
-            condicion: value
-        }))
-    }
-
-    const handleNotasChange = (value: string) => {
-        setPoste(prev => ({
-            ...prev,
-            notas: value
-        }))
-    }
-
-    const crearPoste = async () => {
+    const guardarCambios = async () => {
         if (!poste.placa?.trim()) {
             Alert.alert('Error', 'La placa es obligatoria')
             return
         }
-
-        if (!poste.altura_nivel_tension?.trim()) {
+        if (!poste.altura_nivel_tension) {
             Alert.alert('Error', 'El nivel de tensión es obligatorio')
             return
         }
-
-
-        if (!poste.material?.trim()) {
+        if (!poste.material) {
             Alert.alert('Error', 'El material es obligatorio')
             return
         }
-
-
-        if (!poste.condicion?.trim()) {
+        if (!poste.condicion) {
             Alert.alert('Error', 'La condición es obligatoria')
             return
         }
 
         try {
-            const resultado = await addPoste(db, poste)
-            Alert.alert('Éxito', `Poste creado con id: ${resultado.lastInsertRowId}`)
+            await updatePoste(db, Number(id_elemento), poste)
+            Alert.alert('Éxito', `Poste actualizado`)
             router.back()
         } catch (error) {
             console.error(error)
-            Alert.alert('Error', JSON.stringify(error))
+            Alert.alert('Error', 'No se pudo actualizar')
         }
     }
+
+    if (loading) return <View style={styles.center}><ActivityIndicator size="large" /></View>
 
     return (
         <KeyboardAwareScrollView
             style={styles.container}
             contentContainerStyle={styles.content}
             enableOnAndroid
-            extraScrollHeight={40}
             keyboardShouldPersistTaps="handled"
         >
             <Text variant="headlineMedium" style={styles.title}>
-                Nuevo Poste
+                Editar Poste #{id_elemento}
             </Text>
 
-            {/* --- Inputs --- */}
             <TextInput
                 label="Placa *"
                 value={poste.placa}
@@ -127,18 +113,17 @@ const NuevoPoste = () => {
 
             <SegmentedButtons
                 value={poste.altura_nivel_tension || ''}
-                onValueChange={handleNivelTensionChange}
+                onValueChange={val => setPoste({ ...poste, altura_nivel_tension: val as any })}
                 buttons={[
-                    { value: 'BT', label: 'BT (Baja Tensión)' },
-                    { value: 'MT', label: 'MT (Media Tensión)' },
+                    { value: 'BT', label: 'BT' },
+                    { value: 'MT', label: 'MT' },
                 ]}
                 style={styles.segmentedButtons}
             />
 
-            {/* botones para elegir material de poste */}
             <SegmentedButtons
                 value={poste.material || ''}
-                onValueChange={handleMaterialChange}
+                onValueChange={val => setPoste({ ...poste, material: val as any })}
                 buttons={[
                     { value: 'MADERA', label: 'Madera' },
                     { value: 'CONCRETO', label: 'Concreto' },
@@ -147,10 +132,9 @@ const NuevoPoste = () => {
                 style={styles.segmentedButtons}
             />
 
-            {/* botones para elegir condicion de poste */}
             <SegmentedButtons
                 value={poste.condicion || ''}
-                onValueChange={handleCondicionChange}
+                onValueChange={val => setPoste({ ...poste, condicion: val as any })}
                 buttons={[
                     { value: 'BUENO', label: 'Bueno' },
                     { value: 'REGULAR', label: 'Regular' },
@@ -162,15 +146,15 @@ const NuevoPoste = () => {
             <TextInput
                 label="Notas"
                 value={poste.notas}
-                onChangeText={handleNotasChange}
+                onChangeText={text => setPoste({ ...poste, notas: text })}
                 style={styles.input}
                 mode="outlined"
                 multiline
                 numberOfLines={4}
             />
 
-            <Button mode="contained" onPress={crearPoste} style={styles.button} icon="check">
-                Crear Poste
+            <Button mode="contained" onPress={guardarCambios} style={styles.button} icon="content-save">
+                Guardar Cambios
             </Button>
 
             <Button mode="outlined" onPress={() => router.back()} style={styles.button} icon="arrow-left">
@@ -181,43 +165,14 @@ const NuevoPoste = () => {
     )
 }
 
-export default NuevoPoste
+export default EditarPoste
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#f5f5f5",
-    },
-    content: {
-        padding: 16,
-        paddingBottom: 40,
-    },
-    title: {
-        textAlign: "center",
-        fontWeight: "bold",
-        marginBottom: 20,
-    },
-    input: {
-        marginBottom: 12,
-        backgroundColor: "white",
-    },
-    segmentedButtons: {
-        marginBottom: 16,
-    },
-    sectionTitle: {
-        marginTop: 16,
-        marginBottom: 8,
-        fontWeight: "600",
-    },
-    row: {
-        flexDirection: "row",
-        gap: 8,
-        marginBottom: 12,
-    },
-    halfInput: {
-        flex: 1,
-    },
-    button: {
-        marginBottom: 12,
-    },
+    container: { flex: 1, backgroundColor: "#f5f5f5" },
+    content: { padding: 16, paddingBottom: 40 },
+    center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    title: { textAlign: "center", fontWeight: "bold", marginBottom: 20 },
+    input: { marginBottom: 12, backgroundColor: "white" },
+    segmentedButtons: { marginBottom: 16 },
+    button: { marginBottom: 12 },
 })

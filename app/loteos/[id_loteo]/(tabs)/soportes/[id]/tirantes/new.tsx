@@ -1,8 +1,7 @@
 import { useAuth } from "@/src/contexts/AuthContext";
-import { useLoteo } from "@/src/contexts/LoteoContext";
 import { addTirante } from "@/src/database/queries/tirantes";
 import { Tirante } from "@/src/types";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useGlobalSearchParams, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useState } from "react";
 import { Alert, StyleSheet } from "react-native";
@@ -11,16 +10,12 @@ import { Button, SegmentedButtons, Text, TextInput } from "react-native-paper";
 
 export default function TirantesNew() {
     const db = useSQLiteContext()
-    const params = useLocalSearchParams()
+    const params = useGlobalSearchParams()
     const router = useRouter()
-    const { currentSoporteId } = useLoteo()
     const { session } = useAuth()
 
-    // Asegurar que tenemos un id_soporte válido
-    const soporteId = currentSoporteId || (params.id ? Number(params.id) : 0)
-
     const [tirante, setTirante] = useState<Partial<Tirante>>({
-        id_soporte: soporteId,
+        id_soporte: params.id ? Number(params.id) : 0,
         created_by: session?.user.id,
         updated_by: session?.user.id,
     })
@@ -181,7 +176,7 @@ export default function TirantesNew() {
             <Button mode="outlined" onPress={() => router.back()} style={styles.button} icon="arrow-left">
                 Cancelar
             </Button>
-            <Text variant="bodyMedium">{JSON.stringify(tirante)}</Text>
+
         </KeyboardAwareScrollView>
     );
 }

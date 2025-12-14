@@ -1,27 +1,27 @@
-import { getLuminariaById } from "@/src/database/queries/luminarias";
-import { Luminaria } from "@/src/types";
+import { getSeccionamientoById } from "@/src/database/queries/seccionamientos";
+import { Seccionamiento } from "@/src/types";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import React, { useCallback, useState } from "react";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Appbar, Card, Divider, Text } from "react-native-paper";
 
-export default function LuminariaDetail() {
+export default function SeccionamientoDetail() {
     const { id_loteo, id, id_elemento } = useLocalSearchParams<{ id_loteo: string, id: string, id_elemento: string }>();
     const router = useRouter();
     const db = useSQLiteContext();
-    const [luminaria, setLuminaria] = useState<Luminaria | null>(null);
+    const [seccionamiento, setSeccionamiento] = useState<Seccionamiento | null>(null);
     const [loading, setLoading] = useState(true);
 
     const loadData = async () => {
         if (!id_elemento) return;
         setLoading(true);
         try {
-            const result = await getLuminariaById(db, Number(id_elemento)) as Luminaria;
-            setLuminaria(result);
+            const result = await getSeccionamientoById(db, Number(id_elemento)) as Seccionamiento;
+            setSeccionamiento(result);
         } catch (err) {
-            console.error("Error loading luminaria:", err);
-            Alert.alert("Error", "No se pudo cargar la información de la luminaria.");
+            console.error("Error loading seccionamiento:", err);
+            Alert.alert("Error", "No se pudo cargar la información del seccionamiento.");
         } finally {
             setLoading(false);
         }
@@ -34,17 +34,17 @@ export default function LuminariaDetail() {
     );
 
     if (loading) return <View style={styles.loadingContainer}><ActivityIndicator size="large" /></View>;
-    if (!luminaria) return <View style={styles.emptyContainer}><Text>No se encontró la luminaria.</Text></View>;
+    if (!seccionamiento) return <View style={styles.emptyContainer}><Text>No se encontró el seccionamiento.</Text></View>;
 
     return (
         <View style={styles.container}>
             <Appbar.Header>
                 <Appbar.BackAction onPress={() => router.back()} />
-                <Appbar.Content title={`Luminaria #${luminaria.id}`} />
+                <Appbar.Content title={`Seccionamiento #${seccionamiento.id}`} />
                 <Appbar.Action icon="pencil" onPress={() => {
                     router.push({
-                        pathname: `/loteos/${id_loteo}/(tabs)/soportes/${id}/luminarias/edit`,
-                        params: { id_elemento: luminaria.id }
+                        pathname: `/loteos/${id_loteo}/(tabs)/soportes/${id}/seccionamientos/edit`,
+                        params: { id_elemento: seccionamiento.id }
                     } as any);
                 }} />
             </Appbar.Header>
@@ -55,14 +55,16 @@ export default function LuminariaDetail() {
                         <Text variant="titleLarge" style={styles.title}>Información General</Text>
                         <Divider style={styles.divider} />
 
-                        <DetailRow label="ID" value={`#${luminaria.id}`} />
-                        <DetailRow label="Tipo Lámpara" value={luminaria.tipo_lampara} />
-                        <DetailRow label="Potencia" value={luminaria.potencia ? `${luminaria.potencia}W` : "-"} />
-                        <DetailRow label="Condición" value={luminaria.condicion} />
-                        <DetailRow label="Notas" value={luminaria.notas} />
+                        <DetailRow label="ID" value={`#${seccionamiento.id}`} />
+                        <DetailRow label="Tipo" value={seccionamiento.tipo} />
+                        <DetailRow label="Letrero" value={seccionamiento.letrero} />
+                        <DetailRow label="Posición" value={seccionamiento.posicion} />
+                        <DetailRow label="Fases" value={seccionamiento.fases} />
+                        <DetailRow label="Condición" value={seccionamiento.condicion} />
+                        <DetailRow label="Notas" value={seccionamiento.notas} />
 
                         <Divider style={styles.divider} />
-                        <DetailRow label="Sincronizado" value={luminaria.synced === 1 ? "Sí" : "No"} />
+                        <DetailRow label="Sincronizado" value={seccionamiento.synced === 1 ? "Sí" : "No"} />
                     </Card.Content>
                 </Card>
             </ScrollView>

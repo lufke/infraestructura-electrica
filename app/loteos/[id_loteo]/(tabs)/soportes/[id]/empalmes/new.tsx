@@ -1,8 +1,7 @@
 import { useAuth } from '@/src/contexts/AuthContext'
-import { useLoteo } from '@/src/contexts/LoteoContext'
 import { addEmpalme } from '@/src/database/queries/empalmes'
 import { Empalme } from '@/src/types'
-import { router, useLocalSearchParams } from 'expo-router'
+import { router, useGlobalSearchParams } from 'expo-router'
 import { useSQLiteContext } from 'expo-sqlite'
 import React, { useState } from 'react'
 import {
@@ -19,18 +18,27 @@ import {
 
 const NuevoEmpalme = () => {
     const db = useSQLiteContext()
-    const params = useLocalSearchParams()
-    const { currentSoporteId } = useLoteo()
+    const params = useGlobalSearchParams()
     const { session } = useAuth()
 
-    // Asegurar que tenemos un id_soporte válido
-    const soporteId = currentSoporteId || (params.id ? Number(params.id) : 0)
-
     const [empalme, setEmpalme] = useState<Partial<Empalme>>({
-        id_soporte: soporteId,
+        id_soporte: params.id ? Number(params.id) : 0,
         created_by: session?.user.id,
         updated_by: session?.user.id,
     })
+
+    const [isNumerico, setIsNumerico] = useState(false)
+    const [isSinAcceso, setIsSinAcceso] = useState(false)
+
+    const toggleSinAcceso = () => {
+        if (!isSinAcceso) {
+            setEmpalme(prev => ({ ...prev, n_medidor: 'SIN ACCESO' }))
+            setIsSinAcceso(true)
+        } else {
+            setEmpalme(prev => ({ ...prev, n_medidor: '' }))
+            setIsSinAcceso(false)
+        }
+    }
 
     const handleNivelTensionChange = (value: string) => {
         setEmpalme(prev => ({
@@ -104,6 +112,10 @@ const NuevoEmpalme = () => {
                 onChangeText={text => setEmpalme({ ...empalme, n_medidor: text })}
                 style={styles.input}
                 mode="outlined"
+                disabled={isSinAcceso}
+                keyboardType={isNumerico ? 'numeric' : 'default'}
+                left={<TextInput.Icon icon={isNumerico ? 'alphabetical' : 'numeric'} onPress={() => setIsNumerico(!isNumerico)} forceTextInputFocus={false} />}
+                right={<TextInput.Icon icon={isSinAcceso ? 'close-circle' : 'eye-off'} onPress={toggleSinAcceso} forceTextInputFocus={false} />}
             />
 
             <SegmentedButtons
@@ -181,7 +193,7 @@ const NuevoEmpalme = () => {
             <Button mode="outlined" onPress={() => router.back()} style={styles.button} icon="arrow-left">
                 Cancelar
             </Button>
-            <Text variant="bodyMedium">{JSON.stringify(empalme)}</Text>
+
         </KeyboardAwareScrollView>
     )
 }

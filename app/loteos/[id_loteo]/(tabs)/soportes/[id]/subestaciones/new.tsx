@@ -1,8 +1,7 @@
 import { useAuth } from "@/src/contexts/AuthContext";
-import { useLoteo } from "@/src/contexts/LoteoContext";
 import { addSubestacion } from "@/src/database/queries/subestaciones";
 import { Subestacion } from "@/src/types";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useGlobalSearchParams, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
@@ -12,9 +11,8 @@ import { Button, Chip, SegmentedButtons, Text, TextInput } from "react-native-pa
 export default function SubestacionNew() {
 
     const db = useSQLiteContext()
-    const params = useLocalSearchParams()
+    const params = useGlobalSearchParams()
     const router = useRouter()
-    const { currentSoporteId } = useLoteo()
     const { session } = useAuth()
 
     const getPotenciaOptions = () => {
@@ -27,14 +25,24 @@ export default function SubestacionNew() {
         return ['5', '10', '15', '30', '45', '75', '100', '150', '200', '300', '500']
     }
 
-    // Asegurar que tenemos un id_soporte válido
-    const soporteId = currentSoporteId || (params.id ? Number(params.id) : 0)
-
     const [subestacion, setSubestacion] = useState<Partial<Subestacion>>({
-        id_soporte: soporteId,
+        id_soporte: params.id ? Number(params.id) : 0,
         created_by: session?.user.id,
         updated_by: session?.user.id,
     })
+
+    const [isSinLetrero, setIsSinLetrero] = useState(false)
+    const [isNumerico, setIsNumerico] = useState(false)
+
+    const toggleSinLetrero = () => {
+        if (!isSinLetrero) {
+            setSubestacion(prev => ({ ...prev, letrero: 'SIN LETRERO' }))
+            setIsSinLetrero(true)
+        } else {
+            setSubestacion(prev => ({ ...prev, letrero: '' }))
+            setIsSinLetrero(false)
+        }
+    }
 
     const handleNombreChange = (value: string) => {
         setSubestacion(prev => ({
@@ -148,6 +156,10 @@ export default function SubestacionNew() {
                 onChangeText={handleLetreroChange}
                 style={styles.input}
                 mode="outlined"
+                disabled={isSinLetrero}
+                keyboardType={isNumerico ? 'numeric' : 'default'}
+                right={<TextInput.Icon icon={isSinLetrero ? 'close-circle' : 'tag-off'} onPress={toggleSinLetrero} forceTextInputFocus={false} />}
+                left={<TextInput.Icon icon={isNumerico ? 'alphabetical' : 'numeric'} onPress={() => setIsNumerico(!isNumerico)} forceTextInputFocus={false} />}
             />
 
             <SegmentedButtons
@@ -236,7 +248,7 @@ export default function SubestacionNew() {
             >
                 Cancelar
             </Button>
-            <Text variant="bodyMedium" >{JSON.stringify(subestacion)}</Text>
+
 
         </KeyboardAwareScrollView>
     )

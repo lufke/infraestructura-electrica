@@ -1,8 +1,7 @@
 import { useAuth } from "@/src/contexts/AuthContext";
-import { useLoteo } from "@/src/contexts/LoteoContext";
 import { addTierra } from "@/src/database/queries/tierras";
 import { Tierra } from "@/src/types";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useGlobalSearchParams, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useState } from "react";
 import { Alert, StyleSheet } from "react-native";
@@ -12,14 +11,11 @@ import { Button, SegmentedButtons, Text, TextInput } from "react-native-paper";
 export default function TierrasNew() {
     const db = useSQLiteContext()
     const router = useRouter()
-    const params = useLocalSearchParams()
-    const { currentSoporteId } = useLoteo()
+    const params = useGlobalSearchParams()
     const { session } = useAuth()
 
-    // Asegurar que tenemos un id_soporte válido
-    const soporteId = currentSoporteId || (params.id ? Number(params.id) : 0)
     const [tierra, setTierra] = useState<Partial<Tierra>>({
-        id_soporte: soporteId,
+        id_soporte: params.id ? Number(params.id) : 0,
         created_by: session?.user.id,
         updated_by: session?.user.id,
     })

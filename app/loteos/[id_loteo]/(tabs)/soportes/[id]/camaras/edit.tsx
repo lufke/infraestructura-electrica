@@ -1,12 +1,14 @@
 import { useAuth } from '@/src/contexts/AuthContext'
-import { addCamara } from '@/src/database/queries/camaras'
+import { getCamaraById, updateCamara } from '@/src/database/queries/camaras'
 import { Camara } from '@/src/types'
-import { router, useGlobalSearchParams } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import { useSQLiteContext } from 'expo-sqlite'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
+    ActivityIndicator,
     Alert,
     StyleSheet,
+    View
 } from 'react-native'
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view"
 import {
@@ -16,19 +18,35 @@ import {
     TextInput
 } from 'react-native-paper'
 
-const NuevaCamara = () => {
+const EditarCamara = () => {
     const db = useSQLiteContext()
-    const params = useGlobalSearchParams()
+    const { id_elemento } = useLocalSearchParams<{ id_elemento: string }>()
     const { session } = useAuth()
 
-    const [camara, setCamara] = useState<Partial<Camara>>({
-        id_soporte: params.id ? Number(params.id) : 0,
-        created_by: session?.user.id,
-        updated_by: session?.user.id,
-    })
-
+    const [camara, setCamara] = useState<Partial<Camara>>({})
+    const [loading, setLoading] = useState(true)
     const [isSinPlaca, setIsSinPlaca] = useState(false)
     const [isNumerico, setIsNumerico] = useState(false)
+
+    useEffect(() => {
+        loadData()
+    }, [id_elemento])
+
+    const loadData = async () => {
+        if (!id_elemento) return;
+        try {
+            const data = await getCamaraById(db, Number(id_elemento)) as Camara;
+            if (data) {
+                setCamara({ ...data, updated_by: session?.user.id });
+                if (data.placa === 'SIN PLACA') setIsSinPlaca(true);
+            }
+        } catch (error) {
+            console.error(error);
+            Alert.alert('Error', 'No se pudo cargar la información');
+        } finally {
+            setLoading(false);
+        }
+    }
 
     const toggleSinPlaca = () => {
         if (!isSinPlaca) {
@@ -40,61 +58,43 @@ const NuevaCamara = () => {
         }
     }
 
-    const handleTipoCamaraChange = (value: string) => {
-        setCamara(prev => ({
-            ...prev,
-            tipo_camara: value
-        }))
-    }
-
-    const handleCondicionChange = (value: string) => {
-        setCamara(prev => ({
-            ...prev,
-            condicion: value
-        }))
-    }
-
-    const crearCamara = async () => {
-
+    const guardarCambios = async () => {
         if (!camara.placa?.trim()) {
             Alert.alert('Error', 'La placa es obligatoria')
             return
         }
-
-        if (!camara.tipo_camara?.trim()) {
-            Alert.alert('Error', 'El tipo de camara es obligatorio')
+        if (!camara.tipo_camara) {
+            Alert.alert('Error', 'El tipo de cámara es obligatorio')
             return
         }
-
-
-        if (!camara.condicion?.trim()) {
+        if (!camara.condicion) {
             Alert.alert('Error', 'La condición es obligatoria')
             return
         }
 
         try {
-            const resultado = await addCamara(db, camara)
-            Alert.alert('Éxito', `Camara creada con id: ${resultado.lastInsertRowId}`)
+            await updateCamara(db, Number(id_elemento), camara)
+            Alert.alert('Éxito', `Cámara actualizada`)
             router.back()
         } catch (error) {
             console.error(error)
-            Alert.alert('Error', JSON.stringify(error))
+            Alert.alert('Error', 'No se pudo actualizar')
         }
     }
+
+    if (loading) return <View style={styles.center}><ActivityIndicator size="large" /></View>
 
     return (
         <KeyboardAwareScrollView
             style={styles.container}
             contentContainerStyle={styles.content}
             enableOnAndroid
-            extraScrollHeight={40}
             keyboardShouldPersistTaps="handled"
         >
             <Text variant="headlineMedium" style={styles.title}>
-                Nueva Camara
+                Editar Cámara #{id_elemento}
             </Text>
 
-            {/* --- Inputs --- */}
             <TextInput
                 label="Placa *"
                 value={camara.placa}
@@ -105,24 +105,22 @@ const NuevaCamara = () => {
                 keyboardType={isNumerico ? 'numeric' : 'default'}
                 right={<TextInput.Icon icon={isSinPlaca ? 'close-circle' : 'tag-off'} onPress={toggleSinPlaca} forceTextInputFocus={false} />}
                 left={<TextInput.Icon icon={isNumerico ? 'alphabetical' : 'numeric'} onPress={() => setIsNumerico(!isNumerico)} forceTextInputFocus={false} />}
-
             />
 
             <SegmentedButtons
                 value={camara.tipo_camara || ''}
-                onValueChange={handleTipoCamaraChange}
+                onValueChange={val => setCamara({ ...camara, tipo_camara: val as any })}
                 buttons={[
-                    { value: 'A', label: 'A (Pequeña)' },
-                    { value: 'B', label: 'B (Mediana)' },
-                    { value: 'C', label: 'C (Grande)' },
+                    { value: 'A', label: 'Tipo A' },
+                    { value: 'B', label: 'Tipo B' },
+                    { value: 'C', label: 'Tipo C' },
                 ]}
                 style={styles.segmentedButtons}
             />
 
-            {/* botones para elegir condicion de poste */}
             <SegmentedButtons
                 value={camara.condicion || ''}
-                onValueChange={handleCondicionChange}
+                onValueChange={val => setCamara({ ...camara, condicion: val as any })}
                 buttons={[
                     { value: 'BUENO', label: 'Bueno' },
                     { value: 'REGULAR', label: 'Regular' },
@@ -141,8 +139,8 @@ const NuevaCamara = () => {
                 numberOfLines={4}
             />
 
-            <Button mode="contained" onPress={crearCamara} style={styles.button} icon="check">
-                Crear Camara
+            <Button mode="contained" onPress={guardarCambios} style={styles.button} icon="content-save">
+                Guardar Cambios
             </Button>
 
             <Button mode="outlined" onPress={() => router.back()} style={styles.button} icon="arrow-left">
@@ -153,43 +151,14 @@ const NuevaCamara = () => {
     )
 }
 
-export default NuevaCamara
+export default EditarCamara
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#f5f5f5",
-    },
-    content: {
-        padding: 16,
-        paddingBottom: 40,
-    },
-    title: {
-        textAlign: "center",
-        fontWeight: "bold",
-        marginBottom: 20,
-    },
-    input: {
-        marginBottom: 12,
-        backgroundColor: "white",
-    },
-    segmentedButtons: {
-        marginBottom: 16,
-    },
-    sectionTitle: {
-        marginTop: 16,
-        marginBottom: 8,
-        fontWeight: "600",
-    },
-    row: {
-        flexDirection: "row",
-        gap: 8,
-        marginBottom: 12,
-    },
-    halfInput: {
-        flex: 1,
-    },
-    button: {
-        marginBottom: 12,
-    },
+    container: { flex: 1, backgroundColor: "#f5f5f5" },
+    content: { padding: 16, paddingBottom: 40 },
+    center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    title: { textAlign: "center", fontWeight: "bold", marginBottom: 20 },
+    input: { marginBottom: 12, backgroundColor: "white" },
+    segmentedButtons: { marginBottom: 16 },
+    button: { marginBottom: 12 },
 })
