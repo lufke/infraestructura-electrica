@@ -47,24 +47,7 @@ CREATE TABLE IF NOT EXISTS soportes (
     FOREIGN KEY(id_loteo) REFERENCES loteos(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS postes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    altura REAL,
-    altura_nivel_tension TEXT CHECK(altura_nivel_tension IN ('MT','BT')),
-    material TEXT CHECK(material IN ('MADERA','CONCRETO','METAL')),
-    placa TEXT,
-    condicion TEXT CHECK(condicion IN ('BUENO','REGULAR','MALO')) DEFAULT 'BUENO',
-    notas TEXT,
-    id_soporte INTEGER NOT NULL,
-    synced INTEGER DEFAULT 0,
-    id_supabase INTEGER,
-    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-    updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
-    deleted INTEGER DEFAULT 0,
-    created_by TEXT,
-    updated_by TEXT,
-    FOREIGN KEY(id_soporte) REFERENCES soportes(id) ON DELETE CASCADE
-);
+
 
 CREATE TABLE IF NOT EXISTS camaras (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -134,3 +134,68 @@ export async function selectWithJoinBuilder(
     return db.getAllAsync(sql, values);
 }
 
+
+/**
+ * Schema Definition Types
+ */
+export interface ColumnDefinition {
+    type: 'INTEGER' | 'REAL' | 'TEXT' | 'BLOB';
+    primaryKey?: boolean;
+    autoIncrement?: boolean;
+    notNull?: boolean;
+    unique?: boolean;
+    check?: string; // e.g. "IN ('A', 'B')"
+    default?: string | number;
+    references?: {
+        table: string;
+        column: string;
+        onDelete?: 'CASCADE' | 'SET NULL' | 'RESTRICT';
+    };
+}
+
+export interface TableSchema {
+    tableName: string;
+    columns: Record<string, ColumnDefinition>;
+    constraints?: string[]; // Additional constraints like compound keys
+}
+
+/**
+ * Crea una tabla dinámicamente basada en un esquema
+ */
+export async function createTableBuilder(
+    db: SQLiteDatabase,
+    schema: TableSchema
+) {
+    const columns = Object.entries(schema.columns).map(([name, def]) => {
+        let colSql = `${name} ${def.type}`;
+
+        if (def.primaryKey) colSql += " PRIMARY KEY";
+        if (def.autoIncrement) colSql += " AUTOINCREMENT";
+        if (def.notNull) colSql += " NOT NULL";
+        if (def.unique) colSql += " UNIQUE";
+        if (def.check) colSql += ` CHECK(${name} ${def.check})`;
+        if (def.default !== undefined) {
+            const defVal = typeof def.default === 'string' ? `'${def.default}'` : def.default;
+            colSql += ` DEFAULT ${defVal}`;
+        }
+        if (def.references) {
+            colSql += ` REFERENCES ${def.references.table}(${def.references.column})`;
+            if (def.references.onDelete) {
+                colSql += ` ON DELETE ${def.references.onDelete}`;
+            }
+        }
+        return colSql;
+    });
+
+    // Add explicit foreign keys if defined at table level (optional, simpler to do inline for now unless circular)
+    // For now we assume inline references are enough for simple schemas.
+
+    const fullSql = `
+    CREATE TABLE IF NOT EXISTS ${schema.tableName} (
+        ${columns.join(",\n        ")}${schema.constraints ? ",\n        " + schema.constraints.join(",\n        ") : ""}
+    );
+    `;
+
+    console.log(`Creating table ${schema.tableName}...`);
+    return db.execAsync(fullSql);
+}
