@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { View } from 'react-native';
 import { Marker } from 'react-native-maps';
 
@@ -18,51 +18,68 @@ interface MapMarkersProps {
     onCalloutPress: (id: number) => void;
 }
 
+const getMarkerColor = (tipo: string, isSelected: boolean) => {
+    if (isSelected) {
+        return '#FFD700'; // Amarillo para marcadores seleccionados
+    }
+
+    switch (tipo) {
+        case 'CAMARA': return '#03A9F4'; // Azul claro
+        case 'POSTE': return '#e74c3c'; // Rojo
+        case 'EMPALME': return '#9C27B0'; // Morado
+        case 'LUMINARIA': return '#FF9800'; // Naranja
+        case 'SECCIONAMIENTO': return '#E91E63'; // Rosa
+        case 'SUBESTACION': return '#4CAF50'; // Verde
+        case 'ESTRUCTURA': return '#795548'; // Marrón
+        case 'TIRANTE': return '#607D8B'; // Gris Azulado
+        case 'TIERRA': return '#000000'; // Negro
+        default: return '#9E9E9E'; // Gris default
+    }
+};
+
 const MapMarkers = ({ markers, selectedSoportes, onMarkerPress, onCalloutPress }: MapMarkersProps) => {
 
-    const getMarkerColor = (marker: { id: number; tipo: string }) => {
-        const isSelected = selectedSoportes.some(s => s.id === marker.id && s.tipo === marker.tipo);
+    // Crear un Set de IDs seleccionados para búsqueda O(1) en lugar de O(n)
+    const selectedIds = useMemo(() => {
+        return new Set(selectedSoportes.map(s => `${s.tipo}-${s.id}`));
+    }, [selectedSoportes]);
 
-        if (isSelected) {
-            return '#FFD700'; // Amarillo para marcadores seleccionados
-        }
+    // Memoizar los datos procesados de los marcadores
+    const processedMarkers = useMemo(() => {
+        return markers.map((marker) => {
+            const key = `${marker.tipo}-${marker.id}`;
+            const isSelected = selectedIds.has(key);
+            const size = isSelected ? 28 : 22;
+            const color = getMarkerColor(marker.tipo, isSelected);
 
-        switch (marker.tipo) {
-            case 'CAMARA': return '#03A9F4'; // Azul claro
-            case 'POSTE': return '#e74c3c'; // Rojo
-            case 'EMPALME': return '#9C27B0'; // Morado
-            case 'LUMINARIA': return '#FF9800'; // Naranja
-            case 'SECCIONAMIENTO': return '#E91E63'; // Rosa
-            case 'SUBESTACION': return '#4CAF50'; // Verde
-            case 'ESTRUCTURA': return '#795548'; // Marrón
-            case 'TIRANTE': return '#607D8B'; // Gris Azulado
-            case 'TIERRA': return '#000000'; // Negro
-            default: return '#9E9E9E'; // Gris default
-        }
-    };
-
-    const getMarkerSize = (marker: { id: number; tipo: string }) => {
-        const isSelected = selectedSoportes.some(s => s.id === marker.id && s.tipo === marker.tipo);
-        return isSelected ? 28 : 22;
-    };
+            return {
+                ...marker,
+                key,
+                isSelected,
+                size,
+                color,
+                zIndex: isSelected ? 999 : 1
+            };
+        });
+    }, [markers, selectedIds]);
 
     return (
         <>
-            {markers.map((marker) => (
+            {processedMarkers.map((marker) => (
                 <Marker
-                    key={`${marker.tipo}-${marker.id}`}
+                    key={marker.key}
                     coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
                     title={`${marker.tipo}`}
                     description={marker.placa ? `${marker.placa}` : `ID #${marker.id}`}
                     onPress={() => onMarkerPress(marker)}
                     onCalloutPress={() => onCalloutPress(marker.soporte_id || marker.id)}
-                    zIndex={selectedSoportes.some(s => s.id === marker.id) ? 999 : 1}
+                    zIndex={marker.zIndex}
                 >
                     <View style={{
-                        width: getMarkerSize(marker),
-                        height: getMarkerSize(marker),
-                        borderRadius: getMarkerSize(marker) / 2,
-                        backgroundColor: getMarkerColor(marker),
+                        width: marker.size,
+                        height: marker.size,
+                        borderRadius: marker.size / 2,
+                        backgroundColor: marker.color,
                         borderColor: 'white',
                         borderWidth: 3,
                         shadowColor: '#000',
