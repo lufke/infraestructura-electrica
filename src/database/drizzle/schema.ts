@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm';
+import { check, sql } from 'drizzle-orm';
 import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 // --------------------------------------------------------------------------
@@ -17,7 +17,7 @@ export const loteos = sqliteTable('loteos', {
     n_cliente: text('n_cliente'),
     tension_mt: real('tension_mt'),
     tension_bt: real('tension_bt'),
-    nivel_tension: text('nivel_tension'), // Check constraint handled via app logic or dedicated helper if needed
+    nivel_tension: text('nivel_tension'),
     latitud: real('latitud'),
     longitud: real('longitud'),
     notas: text('notas'),
@@ -28,14 +28,16 @@ export const loteos = sqliteTable('loteos', {
     deleted: integer('deleted').default(0),
     created_by: text('created_by'),
     updated_by: text('updated_by')
-});
+}, (table) => ({
+    nivelTensionCheck: check('nivel_tension_check', sql`${table.nivel_tension} IN ('BT','MT')`)
+}));
 
 // --------------------------------------------------------------------------
 // Soportes (Base for Postes, Camaras, etc.)
 // --------------------------------------------------------------------------
 export const soportes = sqliteTable('soportes', {
     id: integer('id').primaryKey({ autoIncrement: true }),
-    tipo: text('tipo'), // CHECK(tipo IN ('POSTE','CAMARA'))
+    tipo: text('tipo'),
     latitud: real('latitud'),
     longitud: real('longitud'),
     altitud: real('altitud'),
@@ -49,7 +51,9 @@ export const soportes = sqliteTable('soportes', {
     deleted: integer('deleted').default(0),
     created_by: text('created_by'),
     updated_by: text('updated_by')
-});
+}, (table) => ({
+    tipoCheck: check('tipo_check', sql`${table.tipo} IN ('POSTE','CAMARA')`)
+}));
 
 // --------------------------------------------------------------------------
 // Support Subtypes
@@ -70,7 +74,11 @@ export const postes = sqliteTable('postes', {
     deleted: integer('deleted').default(0),
     created_by: text('created_by'),
     updated_by: text('updated_by')
-});
+}, (table) => ({
+    alturaNivelTensionCheck: check('altura_nivel_tension_check', sql`${table.altura_nivel_tension} IN ('MT','BT')`),
+    materialCheck: check('material_check', sql`${table.material} IN ('MADERA','CONCRETO','METAL')`),
+    condicionCheck: check('condicion_check', sql`${table.condicion} IN ('BUENO','REGULAR','MALO')`)
+}));
 
 export const camaras = sqliteTable('camaras', {
     id: integer('id').primaryKey({ autoIncrement: true }),
@@ -86,7 +94,9 @@ export const camaras = sqliteTable('camaras', {
     deleted: integer('deleted').default(0),
     created_by: text('created_by'),
     updated_by: text('updated_by')
-});
+}, (table) => ({
+    condicionCheck: check('condicion_check', sql`${table.condicion} IN ('BUENO','REGULAR','MALO')`)
+}));
 
 export const estructuras = sqliteTable('estructuras', {
     id: integer('id').primaryKey({ autoIncrement: true }),
@@ -104,7 +114,10 @@ export const estructuras = sqliteTable('estructuras', {
     deleted: integer('deleted').default(0),
     created_by: text('created_by'),
     updated_by: text('updated_by')
-});
+}, (table) => ({
+    nivelTensionCheck: check('nivel_tension_check', sql`${table.nivel_tension} IN ('BT','MT')`),
+    condicionCheck: check('condicion_check', sql`${table.condicion} IN ('BUENO','REGULAR','MALO')`)
+}));
 
 export const seccionamientos = sqliteTable('seccionamientos', {
     id: integer('id').primaryKey({ autoIncrement: true }),
@@ -124,7 +137,11 @@ export const seccionamientos = sqliteTable('seccionamientos', {
     deleted: integer('deleted').default(0),
     created_by: text('created_by'),
     updated_by: text('updated_by')
-});
+}, (table) => ({
+    nivelTensionCheck: check('nivel_tension_check', sql`${table.nivel_tension} IN ('BT','MT')`),
+    posicionCheck: check('posicion_check', sql`${table.posicion} IN ('ABIERTO','CERRADO')`),
+    condicionCheck: check('condicion_check', sql`${table.condicion} IN ('BUENO','REGULAR','MALO')`)
+}));
 
 export const subestaciones = sqliteTable('subestaciones', {
     id: integer('id').primaryKey({ autoIncrement: true }),
@@ -145,7 +162,9 @@ export const subestaciones = sqliteTable('subestaciones', {
     deleted: integer('deleted').default(0),
     created_by: text('created_by'),
     updated_by: text('updated_by')
-});
+}, (table) => ({
+    condicionCheck: check('condicion_check', sql`${table.condicion} IN ('BUENO','REGULAR','MALO')`)
+}));
 
 export const tirantes = sqliteTable('tirantes', {
     id: integer('id').primaryKey({ autoIncrement: true }),
@@ -163,7 +182,12 @@ export const tirantes = sqliteTable('tirantes', {
     deleted: integer('deleted').default(0),
     created_by: text('created_by'),
     updated_by: text('updated_by')
-});
+}, (table) => ({
+    nivelTensionCheck: check('nivel_tension_check', sql`${table.nivel_tension} IN ('BT','MT')`),
+    fijacionCheck: check('fijacion_check', sql`${table.fijacion} IN ('PISO','POSTE MOZO','RIEL')`),
+    tipoCheck: check('tipo_check', sql`${table.tipo} IN ('SIMPLE','DOBLE')`),
+    condicionCheck: check('condicion_check', sql`${table.condicion} IN ('BUENO','REGULAR','MALO')`)
+}));
 
 export const tierras = sqliteTable('tierras', {
     id: integer('id').primaryKey({ autoIncrement: true }),
@@ -179,7 +203,10 @@ export const tierras = sqliteTable('tierras', {
     deleted: integer('deleted').default(0),
     created_by: text('created_by'),
     updated_by: text('updated_by')
-});
+}, (table) => ({
+    tipoCheck: check('tipo_check', sql`${table.tipo} IN ('TP','TS')`),
+    condicionCheck: check('condicion_check', sql`${table.condicion} IN ('BUENO','REGULAR','MALO')`)
+}));
 
 // --------------------------------------------------------------------------
 // Network Elements
@@ -203,7 +230,10 @@ export const empalmes = sqliteTable('empalmes', {
     deleted: integer('deleted').default(0),
     created_by: text('created_by'),
     updated_by: text('updated_by')
-});
+}, (table) => ({
+    nivelTensionCheck: check('nivel_tension_check', sql`${table.nivel_tension} IN ('BT','MT')`),
+    activoCheck: check('activo_check', sql`${table.activo} IN (0,1)`)
+}));
 
 export const luminarias = sqliteTable('luminarias', {
     id: integer('id').primaryKey({ autoIncrement: true }),
@@ -220,7 +250,10 @@ export const luminarias = sqliteTable('luminarias', {
     deleted: integer('deleted').default(0),
     created_by: text('created_by'),
     updated_by: text('updated_by')
-});
+}, (table) => ({
+    tipoLamparaCheck: check('tipo_lampara_check', sql`${table.tipo_lampara} IN ('LED','HM','HPS')`),
+    condicionCheck: check('condicion_check', sql`${table.condicion} IN ('BUENO','REGULAR','MALO')`)
+}));
 
 export const lineas_mt = sqliteTable('lineas_mt', {
     id: integer('id').primaryKey({ autoIncrement: true }),
@@ -241,7 +274,11 @@ export const lineas_mt = sqliteTable('lineas_mt', {
     deleted: integer('deleted').default(0),
     created_by: text('created_by'),
     updated_by: text('updated_by')
-});
+}, (table) => ({
+    materialCheck: check('material_check', sql`${table.material} IN ('ALUMINIO','COBRE')`),
+    aislacionCheck: check('aislacion_check', sql`${table.aislacion} IN ('DESNUDO','AISLADO')`),
+    condicionCheck: check('condicion_check', sql`${table.condicion} IN ('BUENO','REGULAR','MALO')`)
+}));
 
 export const lineas_bt = sqliteTable('lineas_bt', {
     id: integer('id').primaryKey({ autoIncrement: true }),
@@ -263,4 +300,8 @@ export const lineas_bt = sqliteTable('lineas_bt', {
     deleted: integer('deleted').default(0),
     created_by: text('created_by'),
     updated_by: text('updated_by')
-});
+}, (table) => ({
+    materialCheck: check('material_check', sql`${table.material} IN ('ALUMINIO','COBRE')`),
+    aislacionCheck: check('aislacion_check', sql`${table.aislacion} IN ('DESNUDO','AISLADO')`),
+    condicionCheck: check('condicion_check', sql`${table.condicion} IN ('BUENO','REGULAR','MALO')`)
+}));
