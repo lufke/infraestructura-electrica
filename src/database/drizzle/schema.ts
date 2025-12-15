@@ -288,9 +288,9 @@ export const lineas_mt = sqliteTable('lineas_mt', {
     created_by: text('created_by'),
     updated_by: text('updated_by')
 }, (table) => ({
-    materialCheck: check('material_check', sql`${table.material} IN ('ALUMINIO','COBRE')`),
-    aislacionCheck: check('aislacion_check', sql`${table.aislacion} IN ('DESNUDO','AISLADO')`),
-    condicionCheck: check('condicion_check', sql`${table.condicion} IN ('BUENO','REGULAR','MALO')`)
+    materialCheck: check('material_check', sql`${table.material} IN (${sql.raw(sqlIn(MATERIAL_LINEA_VALUES))})`),
+    aislacionCheck: check('aislacion_check', sql`${table.aislacion} IN (${sql.raw(sqlIn(AISLACION_LINEA_VALUES))})`),
+    condicionCheck: check('condicion_check', sql`${table.condicion} IN (${sql.raw(sqlIn(CONDICION_VALUES))})`)
 }));
 
 export const lineas_bt = sqliteTable('lineas_bt', {
@@ -314,7 +314,7 @@ export const lineas_bt = sqliteTable('lineas_bt', {
     created_by: text('created_by'),
     updated_by: text('updated_by')
 }, (table) => ({
-    materialCheck: check('material_check', sql`${table.material} IN ('ALUMINIO','COBRE')`),
-    aislacionCheck: check('aislacion_check', sql`${table.aislacion} IN ('DESNUDO','AISLADO')`),
-    condicionCheck: check('condicion_check', sql`${table.condicion} IN ('BUENO','REGULAR','MALO')`)
+    materialCheck: check('material_check', sql`${table.material} IN (${sql.raw(sqlIn(MATERIAL_LINEA_VALUES))})`),
+    aislacionCheck: check('aislacion_check', sql`${table.aislacion} IN (${sql.raw(sqlIn(AISLACION_LINEA_VALUES))})`),
+    condicionCheck: check('condicion_check', sql`${table.condicion} IN (${sql.raw(sqlIn(CONDICION_VALUES))})`)
 }));
