@@ -102,7 +102,7 @@ export default function Info() {
                         <Text variant="headlineSmall" style={{ fontWeight: 'bold' }}>{loteo.nombre}</Text>
                         <Text variant="bodyMedium" style={{ color: theme.colors.outline }}>ID: {loteo.id}</Text>
                         <Text variant="bodySmall" style={{ marginTop: 4 }}>
-                            Creado: {new Date(loteo.created_at || '').toLocaleDateString()}
+                            Creado: {new Date(String(loteo.created_at || '')).toLocaleDateString()}
                         </Text>
                     </View>
                 </Card.Content>

@@ -1,22 +1,8 @@
-import { Condicion } from "./propiedades"
-import { SyncData } from "./sync"
+import { InferInsert, InferModel } from '@/src/database/drizzle/helpers';
+import { tierras } from '@/src/database/drizzle/schema';
 
-export type TipoTierra = 'TP' | 'TS' | string
+export type TipoTierra = 'TP' | 'TS';
 
-export interface TierraBase extends SyncData {
-    tipo?: TipoTierra
-    resistencia?: number
-    condicion?: Condicion
-    notas?: string
-    id_soporte: number
-}
-
-export interface Tierra extends TierraBase {
-    id: number
-}
-
-export type TierraCreate = TierraBase
-
-export interface TierraUpdate extends Partial<TierraBase> {
-    id: number
-}
+export type Tierra = InferModel<typeof tierras>;
+export type TierraCreate = InferInsert<typeof tierras>;
+export type TierraUpdate = Partial<TierraCreate> & { id: number };

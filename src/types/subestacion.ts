@@ -1,26 +1,6 @@
-import { Condicion } from "./propiedades"
-import { SyncData } from "./sync"
+import { InferInsert, InferModel } from '@/src/database/drizzle/helpers';
+import { subestaciones } from '@/src/database/drizzle/schema';
 
-
-export interface SubestacionBase extends SyncData {
-    nombre?: string
-    tension?: number
-    potencia?: number
-    fases?: number
-    marca?: string
-    serie?: string
-    condicion?: Condicion
-    letrero?: string
-    notas?: string
-    id_soporte: number
-}
-
-export interface Subestacion extends SubestacionBase {
-    id: number
-}
-
-export type SubestacionCreate = SubestacionBase
-
-export interface SubestacionUpdate extends Partial<SubestacionBase> {
-    id: number
-}
+export type Subestacion = InferModel<typeof subestaciones>;
+export type SubestacionCreate = InferInsert<typeof subestaciones>;
+export type SubestacionUpdate = Partial<SubestacionCreate> & { id: number };

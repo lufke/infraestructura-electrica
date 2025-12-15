@@ -1,30 +1,9 @@
-import { NivelTension } from "./propiedades";
-import { SyncData } from "./sync";
+import { InferInsert, InferModel } from '@/src/database/drizzle/helpers';
+import { loteos } from "@/src/database/drizzle/schema";
 
-export interface LoteoBase extends SyncData {
-    nombre: string
-    direccion?: string
-    propietario?: string
-    id_owner?: string
-    telefono?: string
-    correo?: string
-    comuna?: string
-    distribuidora?: string
-    n_cliente?: string
-    tension_mt?: number
-    tension_bt?: number
-    nivel_tension?: NivelTension
-    latitud?: number
-    longitud?: number
-    notas?: string
-}
-
-export interface Loteo extends LoteoBase {
-    id: number
-}
-
-export type LoteoCreate = LoteoBase
-
-export interface LoteoUpdate extends Partial<LoteoBase> {
-    id: number
-}
+/**
+ * 🔹 Single Source of Truth: Derived directly from Drizzle Schema!
+ */
+export type Loteo = InferModel<typeof loteos>;
+export type LoteoCreate = InferInsert<typeof loteos>;
+export type LoteoUpdate = Partial<LoteoCreate> & { id: number };

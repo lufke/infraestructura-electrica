@@ -1,26 +1,8 @@
-import { Condicion } from "./propiedades";
-import { SyncData } from "./sync";
+import { InferInsert, InferModel } from '@/src/database/drizzle/helpers';
+import { luminarias } from '@/src/database/drizzle/schema';
 
-export type TipoLampara = 'LED' | 'HM' | 'HPS' | string
+export type TipoLampara = 'LED' | 'HM' | 'HPS';
 
-export interface LuminariaBase extends SyncData {
-    tipo_lampara?: TipoLampara
-    fase?: number
-    potencia?: number
-    condicion?: Condicion
-    notas?: string
-    id_subestacion?: number
-    id_empalme?: number
-    id_soporte: number
-}
-
-export interface Luminaria extends LuminariaBase {
-    id: number
-}
-
-export type LuminariaCreate = LuminariaBase
-
-export interface LuminariaUpdate extends Partial<LuminariaBase> {
-    id: number
-}
-
+export type Luminaria = InferModel<typeof luminarias>;
+export type LuminariaCreate = InferInsert<typeof luminarias>;
+export type LuminariaUpdate = Partial<LuminariaCreate> & { id: number };

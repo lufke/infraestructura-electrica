@@ -1,25 +1,6 @@
-import { NivelTension } from "./propiedades"
-import { SyncData } from "./sync"
+import { InferInsert, InferModel } from '@/src/database/drizzle/helpers';
+import { empalmes } from '@/src/database/drizzle/schema';
 
-export interface EmpalmeBase extends SyncData {
-    n_medidor: string
-    nivel_tension?: NivelTension
-    fases?: number
-    capacidad?: number
-    direccion?: string
-    parcela?: string
-    activo?: number
-    id_soporte?: number
-    id_subestacion?: number
-    notas?: string
-}
-
-export interface Empalme extends EmpalmeBase {
-    id: number
-}
-
-export type EmpalmeCreate = EmpalmeBase
-
-export interface EmpalmeUpdate extends Partial<EmpalmeBase> {
-    id: number
-}
+export type Empalme = InferModel<typeof empalmes>;
+export type EmpalmeCreate = InferInsert<typeof empalmes>;
+export type EmpalmeUpdate = Partial<EmpalmeCreate> & { id: number };

@@ -1,25 +1,6 @@
-import { AislacionConductor, Condicion, MaterialConductor } from "./propiedades";
-import { SyncData } from "./sync";
+import { InferInsert, InferModel } from '@/src/database/drizzle/helpers';
+import { lineas_mt } from '@/src/database/drizzle/schema';
 
-export interface LineaMTBase extends SyncData {
-    tipo?: string
-    fases?: number
-    seccion?: number
-    largo?: number
-    condicion?: Condicion
-    material?: MaterialConductor
-    aislacion?: AislacionConductor
-    id_soporte_inicio: number
-    id_soporte_final: number
-    notas?: string
-}
-
-export interface LineaMT extends LineaMTBase {
-    id: number
-}
-
-export type LineaMTCreate = LineaMTBase
-
-export interface LineaMTUpdate extends Partial<LineaMTBase> {
-    id: number
-}
+export type LineaMT = InferModel<typeof lineas_mt>;
+export type LineaMTCreate = InferInsert<typeof lineas_mt>;
+export type LineaMTUpdate = Partial<LineaMTCreate> & { id: number };

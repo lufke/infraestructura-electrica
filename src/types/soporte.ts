@@ -1,23 +1,8 @@
-import { SyncData } from "./sync"
+import { InferInsert, InferModel } from '@/src/database/drizzle/helpers';
+import { soportes } from '@/src/database/drizzle/schema';
 
-export type TipoSoporte = 'POSTE' | 'CAMARA' | string
+export type TipoSoporte = 'POSTE' | 'CAMARA';
 
-export interface SoporteBase extends SyncData {
-    tipo?: TipoSoporte
-    latitud: number
-    longitud: number
-    altitud?: number
-    precision?: number
-    notas?: string
-    id_loteo: number
-}
-
-export interface Soporte extends SoporteBase {
-    id: number
-}
-
-export type SoporteCreate = SoporteBase
-
-export interface SoporteUpdate extends Partial<SoporteBase> {
-    id: number
-}
+export type Soporte = InferModel<typeof soportes>;
+export type SoporteCreate = InferInsert<typeof soportes>;
+export type SoporteUpdate = Partial<SoporteCreate> & { id: number };

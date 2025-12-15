@@ -1,26 +1,9 @@
-import { Condicion, NivelTension } from "./propiedades"
-import { SyncData } from "./sync"
+import { InferInsert, InferModel } from '@/src/database/drizzle/helpers';
+import { tirantes } from '@/src/database/drizzle/schema';
 
-export type FijacionTirante = 'PISO' | 'POSTE MOZO' | 'RIEL' | string
+export type FijacionTirante = 'PISO' | 'POSTE MOZO' | 'RIEL';
+export type TipoTirante = 'SIMPLE' | 'DOBLE';
 
-export type TipoTirante = 'SIMPLE' | 'DOBLE' | string
-
-export interface TiranteBase extends SyncData {
-    nivel_tension?: NivelTension
-    cantidad?: number
-    tipo?: TipoTirante
-    fijacion?: FijacionTirante
-    condicion?: Condicion
-    notas?: string
-    id_soporte: number
-}
-
-export interface Tirante extends TiranteBase {
-    id: number
-}
-
-export type TiranteCreate = TiranteBase
-
-export interface TiranteUpdate extends Partial<TiranteBase> {
-    id: number
-}
+export type Tirante = InferModel<typeof tirantes>;
+export type TiranteCreate = InferInsert<typeof tirantes>;
+export type TiranteUpdate = Partial<TiranteCreate> & { id: number };

@@ -1,24 +1,8 @@
-import { Condicion, NivelTension } from "./propiedades"
-import { SyncData } from "./sync"
+import { InferInsert, InferModel } from '@/src/database/drizzle/helpers';
+import { postes } from '@/src/database/drizzle/schema';
 
-export type MaterialPoste = 'MADERA' | 'CONCRETO' | 'METAL' | string
+export type MaterialPoste = 'MADERA' | 'CONCRETO' | 'METAL' | string;
 
-export interface PosteBase extends SyncData {
-    placa?: string
-    material?: MaterialPoste
-    altura_nivel_tension?: NivelTension
-    altura?: number
-    condicion?: Condicion
-    notas?: string
-    id_soporte: number
-}
-
-export interface Poste extends PosteBase {
-    id: number
-}
-
-export type PosteCreate = PosteBase
-
-export interface PosteUpdate extends Partial<PosteBase> {
-    id: number
-}
+export type Poste = InferModel<typeof postes>;
+export type PosteCreate = InferInsert<typeof postes>;
+export type PosteUpdate = Partial<PosteCreate> & { id: number };

@@ -5,6 +5,7 @@ export * from './empalme';
 export * from './estructura';
 export * from './linea_bt';
 export * from './linea_mt';
+export * from './linea_shared';
 export * from './loteo';
 export * from './luminaria';
 export * from './poste';

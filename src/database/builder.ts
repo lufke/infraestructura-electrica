@@ -199,3 +199,26 @@ export async function createTableBuilder(
     console.log(`Creating table ${schema.tableName}...`);
     return db.execAsync(fullSql);
 }
+
+// --------------------------------------------------------------------------
+// TYPE INFERENCE UTILITIES
+// --------------------------------------------------------------------------
+
+// Map SQLite types to TypeScript types
+type SQLiteToTS<T extends 'INTEGER' | 'REAL' | 'TEXT' | 'BLOB'> =
+    T extends 'INTEGER' ? number :
+    T extends 'REAL' ? number :
+    T extends 'TEXT' ? string :
+    T extends 'BLOB' ? Uint8Array : never;
+
+// Helper to infer the type of a single column
+type InferColumnType<D extends ColumnDefinition> =
+    D['notNull'] extends true
+    ? SQLiteToTS<D['type']>
+    : SQLiteToTS<D['type']> | null | undefined;
+
+// Helper to infer the row shape from the columns map
+export type InferSchemaType<S extends TableSchema> = {
+    [K in keyof S['columns']]: InferColumnType<S['columns'][K]>
+};
+
