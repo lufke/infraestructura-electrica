@@ -1,5 +1,18 @@
 import { check, sql } from 'drizzle-orm';
 import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import {
+    ACTIVO_VALUES,
+    CONDICION_VALUES,
+    FIJACION_TIRANTE_VALUES,
+    MATERIAL_POSTE_VALUES,
+    NIVEL_TENSION_VALUES,
+    POSICION_SECCIONAMIENTO_VALUES,
+    sqlIn,
+    TIPO_LAMPARA_VALUES,
+    TIPO_SOPORTE_VALUES,
+    TIPO_TIERRA_VALUES,
+    TIPO_TIRANTE_VALUES
+} from './constants';
 
 // --------------------------------------------------------------------------
 // Loteos
@@ -29,7 +42,7 @@ export const loteos = sqliteTable('loteos', {
     created_by: text('created_by'),
     updated_by: text('updated_by')
 }, (table) => ({
-    nivelTensionCheck: check('nivel_tension_check', sql`${table.nivel_tension} IN ('BT','MT')`)
+    nivelTensionCheck: check('nivel_tension_check', sql`${table.nivel_tension} IN (${sql.raw(sqlIn(NIVEL_TENSION_VALUES))})`)
 }));
 
 // --------------------------------------------------------------------------
@@ -52,7 +65,7 @@ export const soportes = sqliteTable('soportes', {
     created_by: text('created_by'),
     updated_by: text('updated_by')
 }, (table) => ({
-    tipoCheck: check('tipo_check', sql`${table.tipo} IN ('POSTE','CAMARA')`)
+    tipoCheck: check('tipo_check', sql`${table.tipo} IN (${sql.raw(sqlIn(TIPO_SOPORTE_VALUES))})`)
 }));
 
 // --------------------------------------------------------------------------
@@ -75,9 +88,9 @@ export const postes = sqliteTable('postes', {
     created_by: text('created_by'),
     updated_by: text('updated_by')
 }, (table) => ({
-    alturaNivelTensionCheck: check('altura_nivel_tension_check', sql`${table.altura_nivel_tension} IN ('MT','BT')`),
-    materialCheck: check('material_check', sql`${table.material} IN ('MADERA','CONCRETO','METAL')`),
-    condicionCheck: check('condicion_check', sql`${table.condicion} IN ('BUENO','REGULAR','MALO')`)
+    alturaNivelTensionCheck: check('altura_nivel_tension_check', sql`${table.altura_nivel_tension} IN (${sql.raw(sqlIn(NIVEL_TENSION_VALUES))})`),
+    materialCheck: check('material_check', sql`${table.material} IN (${sql.raw(sqlIn(MATERIAL_POSTE_VALUES))})`),
+    condicionCheck: check('condicion_check', sql`${table.condicion} IN (${sql.raw(sqlIn(CONDICION_VALUES))})`)
 }));
 
 export const camaras = sqliteTable('camaras', {
@@ -115,8 +128,8 @@ export const estructuras = sqliteTable('estructuras', {
     created_by: text('created_by'),
     updated_by: text('updated_by')
 }, (table) => ({
-    nivelTensionCheck: check('nivel_tension_check', sql`${table.nivel_tension} IN ('BT','MT')`),
-    condicionCheck: check('condicion_check', sql`${table.condicion} IN ('BUENO','REGULAR','MALO')`)
+    nivelTensionCheck: check('nivel_tension_check', sql`${table.nivel_tension} IN (${sql.raw(sqlIn(NIVEL_TENSION_VALUES))})`),
+    condicionCheck: check('condicion_check', sql`${table.condicion} IN (${sql.raw(sqlIn(CONDICION_VALUES))})`)
 }));
 
 export const seccionamientos = sqliteTable('seccionamientos', {
@@ -138,9 +151,9 @@ export const seccionamientos = sqliteTable('seccionamientos', {
     created_by: text('created_by'),
     updated_by: text('updated_by')
 }, (table) => ({
-    nivelTensionCheck: check('nivel_tension_check', sql`${table.nivel_tension} IN ('BT','MT')`),
-    posicionCheck: check('posicion_check', sql`${table.posicion} IN ('ABIERTO','CERRADO')`),
-    condicionCheck: check('condicion_check', sql`${table.condicion} IN ('BUENO','REGULAR','MALO')`)
+    nivelTensionCheck: check('nivel_tension_check', sql`${table.nivel_tension} IN (${sql.raw(sqlIn(NIVEL_TENSION_VALUES))})`),
+    posicionCheck: check('posicion_check', sql`${table.posicion} IN (${sql.raw(sqlIn(POSICION_SECCIONAMIENTO_VALUES))})`),
+    condicionCheck: check('condicion_check', sql`${table.condicion} IN (${sql.raw(sqlIn(CONDICION_VALUES))})`)
 }));
 
 export const subestaciones = sqliteTable('subestaciones', {
@@ -183,10 +196,10 @@ export const tirantes = sqliteTable('tirantes', {
     created_by: text('created_by'),
     updated_by: text('updated_by')
 }, (table) => ({
-    nivelTensionCheck: check('nivel_tension_check', sql`${table.nivel_tension} IN ('BT','MT')`),
-    fijacionCheck: check('fijacion_check', sql`${table.fijacion} IN ('PISO','POSTE MOZO','RIEL')`),
-    tipoCheck: check('tipo_check', sql`${table.tipo} IN ('SIMPLE','DOBLE')`),
-    condicionCheck: check('condicion_check', sql`${table.condicion} IN ('BUENO','REGULAR','MALO')`)
+    nivelTensionCheck: check('nivel_tension_check', sql`${table.nivel_tension} IN (${sql.raw(sqlIn(NIVEL_TENSION_VALUES))})`),
+    fijacionCheck: check('fijacion_check', sql`${table.fijacion} IN (${sql.raw(sqlIn(FIJACION_TIRANTE_VALUES))})`),
+    tipoCheck: check('tipo_check', sql`${table.tipo} IN (${sql.raw(sqlIn(TIPO_TIRANTE_VALUES))})`),
+    condicionCheck: check('condicion_check', sql`${table.condicion} IN (${sql.raw(sqlIn(CONDICION_VALUES))})`)
 }));
 
 export const tierras = sqliteTable('tierras', {
@@ -204,8 +217,8 @@ export const tierras = sqliteTable('tierras', {
     created_by: text('created_by'),
     updated_by: text('updated_by')
 }, (table) => ({
-    tipoCheck: check('tipo_check', sql`${table.tipo} IN ('TP','TS')`),
-    condicionCheck: check('condicion_check', sql`${table.condicion} IN ('BUENO','REGULAR','MALO')`)
+    tipoCheck: check('tipo_check', sql`${table.tipo} IN (${sql.raw(sqlIn(TIPO_TIERRA_VALUES))})`),
+    condicionCheck: check('condicion_check', sql`${table.condicion} IN (${sql.raw(sqlIn(CONDICION_VALUES))})`)
 }));
 
 // --------------------------------------------------------------------------
@@ -231,8 +244,8 @@ export const empalmes = sqliteTable('empalmes', {
     created_by: text('created_by'),
     updated_by: text('updated_by')
 }, (table) => ({
-    nivelTensionCheck: check('nivel_tension_check', sql`${table.nivel_tension} IN ('BT','MT')`),
-    activoCheck: check('activo_check', sql`${table.activo} IN (0,1)`)
+    nivelTensionCheck: check('nivel_tension_check', sql`${table.nivel_tension} IN (${sql.raw(sqlIn(NIVEL_TENSION_VALUES))})`),
+    activoCheck: check('activo_check', sql`${table.activo} IN (${sql.raw(sqlIn(ACTIVO_VALUES))})`)
 }));
 
 export const luminarias = sqliteTable('luminarias', {
@@ -251,8 +264,8 @@ export const luminarias = sqliteTable('luminarias', {
     created_by: text('created_by'),
     updated_by: text('updated_by')
 }, (table) => ({
-    tipoLamparaCheck: check('tipo_lampara_check', sql`${table.tipo_lampara} IN ('LED','HM','HPS')`),
-    condicionCheck: check('condicion_check', sql`${table.condicion} IN ('BUENO','REGULAR','MALO')`)
+    tipoLamparaCheck: check('tipo_lampara_check', sql`${table.tipo_lampara} IN (${sql.raw(sqlIn(TIPO_LAMPARA_VALUES))})`),
+    condicionCheck: check('condicion_check', sql`${table.condicion} IN (${sql.raw(sqlIn(CONDICION_VALUES))})`)
 }));
 
 export const lineas_mt = sqliteTable('lineas_mt', {
