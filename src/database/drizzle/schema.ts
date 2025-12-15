@@ -108,7 +108,7 @@ export const camaras = sqliteTable('camaras', {
     created_by: text('created_by'),
     updated_by: text('updated_by')
 }, (table) => ({
-    condicionCheck: check('condicion_check', sql`${table.condicion} IN ('BUENO','REGULAR','MALO')`)
+    condicionCheck: check('condicion_check', sql`${table.condicion} IN (${sql.raw(sqlIn(CONDICION_VALUES))})`)
 }));
 
 export const estructuras = sqliteTable('estructuras', {
