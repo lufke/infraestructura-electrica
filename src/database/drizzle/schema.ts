@@ -1,5 +1,5 @@
-import { check, sql } from 'drizzle-orm';
-import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { sql } from 'drizzle-orm';
+import { check, integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import {
     ACTIVO_VALUES,
     CONDICION_VALUES,
